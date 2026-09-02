@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-flow/unit-result/1.0",
+  "title": "Unit Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "result_id", "unit_ref", "actor", "status", "artifacts", "evidence", "checks", "unresolved"],
+  "properties": {
+    "schema_version": { "const": "1.0" }, "result_id": { "type": "string" }, "unit_ref": { "type": "string", "pattern": "^WU-[0-9]{3}$" }, "actor": { "type": "string" }, "status": { "enum": ["pass", "revise", "blocked"] }, "artifacts": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["ref", "kind", "fingerprint"], "properties": { "ref": { "type": "string" }, "kind": { "type": "string" }, "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }, "path": { "type": "string" } } } }, "evidence": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["ref", "kind", "summary"], "properties": { "ref": { "type": "string" }, "kind": { "type": "string" }, "summary": { "type": "string" }, "command": { "type": "string" }, "workdir": { "type": "string" }, "exit_code": { "type": "integer" } } } }, "checks": { "type": "array", "items": { "type": "string" } }, "usage": { "type": "object", "additionalProperties": false, "properties": { "provider": { "type": "string" }, "model_id": { "type": "string" }, "model_tier": { "enum": ["frontier", "balanced", "economy", "user_selected", "unknown"] }, "input_tokens": { "type": "number", "minimum": 0 }, "output_tokens": { "type": "number", "minimum": 0 }, "tokens": { "type": "number", "minimum": 0 }, "cost": { "type": "number", "minimum": 0 }, "duration_seconds": { "type": "number", "minimum": 0 } } }, "unresolved": { "type": "array", "items": { "type": "string" } }, "next_action": { "type": "string" }
+  }
+}

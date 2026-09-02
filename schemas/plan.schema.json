@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-flow/plan/1.0",
+  "title": "Harness Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "plan_id", "plan_version", "status", "goal", "scope", "requirements", "deliverables", "acceptance", "execution_policy", "quality_policy", "annotations", "approval"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "plan_id": { "type": "string", "pattern": "^plan:[A-Za-z0-9._-]+$" },
+    "plan_version": { "type": "integer", "minimum": 1 },
+    "status": { "enum": ["draft", "annotated", "reconciled", "ready_for_approval", "approved", "superseded", "cancelled"] },
+    "created_at": { "type": "string" },
+    "updated_at": { "type": "string" },
+    "owner": { "type": "string", "minLength": 1 },
+    "goal": {
+      "type": "object", "additionalProperties": false, "required": ["statement", "success_definition"],
+      "properties": { "statement": { "type": "string", "minLength": 1 }, "success_definition": { "type": "string", "minLength": 1 }, "user_value": { "type": "string" } }
+    },
+    "context": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "problem": { "type": "string" }, "current_state": { "type": "string" }, "source_refs": { "type": "array", "items": { "type": "string" } }, "known_constraints": { "type": "array", "items": { "type": "string" } } }
+    },
+    "scope": {
+      "type": "object", "additionalProperties": false, "required": ["in_scope", "out_of_scope"],
+      "properties": { "in_scope": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "out_of_scope": { "type": "array", "items": { "type": "string" } } }
+    },
+    "requirements": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "statement", "priority", "source_refs"], "properties": { "id": { "type": "string", "pattern": "^REQ-[0-9]{3}$" }, "statement": { "type": "string", "minLength": 1 }, "priority": { "enum": ["must", "should", "could"] }, "source_refs": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "notes": { "type": "string" } } }
+    },
+    "deliverables": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "kind", "description"], "properties": { "id": { "type": "string", "pattern": "^OUT-[0-9]{3}$" }, "kind": { "type": "string" }, "description": { "type": "string", "minLength": 1 }, "path_or_destination": { "type": "string" }, "owner": { "type": "string" } } }
+    },
+    "decisions": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "question", "status"], "properties": { "id": { "type": "string", "pattern": "^DEC-[0-9]{3}$" }, "question": { "type": "string", "minLength": 1 }, "decision": { "type": "string" }, "status": { "enum": ["open", "proposed", "user_confirmed", "rejected"] }, "source_ref": { "type": "string" } } }
+    },
+    "acceptance": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "proves", "method", "evidence_kind"], "properties": { "id": { "type": "string", "pattern": "^AC-[0-9]{3}$" }, "proves": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^REQ-[0-9]{3}$" } }, "method": { "type": "string", "minLength": 1 }, "evidence_kind": { "enum": ["test", "artifact", "review", "manual_confirmation", "build", "trace"] }, "stop_condition": { "type": "string" } } }
+    },
+    "execution_policy": {
+      "type": "object", "additionalProperties": false, "required": ["orchestration_mode", "git_mode", "parallelism", "model_policy"],
+      "properties": {
+        "orchestration_mode": { "const": "main_dialogue_skill" }, "git_mode": { "enum": ["none", "optional", "required"] }, "workspace_mode": { "enum": ["single_workspace", "isolated_paths", "isolated_worktree"] }, "interface_mode": { "enum": ["none", "existing_contract", "new_contract", "unknown"] }, "parallelism": { "enum": ["serial", "parallel_safe_units", "conditional"] }, "max_parallel_units": { "type": "integer", "minimum": 1 }, "context_strategy": { "type": "string" },
+        "model_policy": { "type": "object", "additionalProperties": false, "required": ["planning_tier", "implementation_tier", "review_tier"], "properties": { "planning_tier": { "enum": ["frontier", "balanced", "economy", "user_selected"] }, "implementation_tier": { "enum": ["frontier", "balanced", "economy", "user_selected"] }, "review_tier": { "enum": ["frontier", "balanced", "economy", "user_selected"] }, "rationale": { "type": "string" } } }
+      }
+    },
+    "quality_policy": {
+      "type": "object", "additionalProperties": false, "required": ["review_mode", "test_mode", "trace_mode", "retrospective_mode"],
+      "properties": { "review_mode": { "enum": ["sequential_conditional", "single_async", "manual", "none"] }, "review_executor": { "enum": ["independent_subagent", "manual_reviewer", "main_degraded"] }, "code_impact": { "enum": ["unknown", "critical", "material", "limited", "none"] }, "code_review_policy": { "enum": ["deferred", "required", "optional", "not_applicable"] }, "code_review_rationale": { "type": "string" }, "test_mode": { "enum": ["independent_subagent", "manual", "not_available"] }, "build_mode": { "enum": ["required", "when_applicable", "not_applicable"] }, "trace_mode": { "enum": ["canonical_minimal", "canonical_detailed", "manual_log"] }, "retrospective_mode": { "enum": ["user_opt_in", "required", "none"] }, "review_roles": { "type": "array", "items": { "enum": ["code_review", "spec_review", "security", "domain_quality"] } } },
+      "allOf": [
+        { "if": { "required": ["code_impact"], "properties": { "code_impact": { "enum": ["critical", "material"] } } }, "then": { "properties": { "code_review_policy": { "const": "required" } } } },
+        { "if": { "required": ["code_impact"], "properties": { "code_impact": { "const": "none" } } }, "then": { "properties": { "code_review_policy": { "const": "not_applicable" } } } },
+        { "if": { "required": ["review_executor"], "properties": { "review_executor": { "const": "main_degraded" } } }, "then": { "properties": { "review_mode": { "enum": ["manual", "none"] } } } }
+      ]
+    },
+    "risks": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "description", "impact", "mitigation"], "properties": { "id": { "type": "string", "pattern": "^RISK-[0-9]{3}$" }, "description": { "type": "string" }, "impact": { "enum": ["low", "medium", "high", "critical"] }, "mitigation": { "type": "string" }, "owner": { "type": "string" } } } },
+    "annotations": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "author", "target", "comment", "status"], "properties": { "id": { "type": "string", "pattern": "^ANN-[0-9]{3}$" }, "author": { "type": "string" }, "target": { "type": "string" }, "comment": { "type": "string", "minLength": 1 }, "proposed_change": { "type": "string" }, "status": { "enum": ["open", "accepted", "rejected", "resolved"] }, "resolved_by": { "type": "string" } } } },
+    "unresolved": { "type": "array", "items": { "type": "string" } },
+    "approval": {
+      "type": "object", "additionalProperties": false, "required": ["status"],
+      "properties": { "status": { "enum": ["not_requested", "requested", "approved", "rejected", "expired"] }, "approved_by": { "type": "string", "minLength": 1 }, "approved_at": { "type": "string", "minLength": 1 }, "approved_plan_fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }, "decision_note": { "type": "string" } },
+      "allOf": [
+        { "if": { "properties": { "status": { "const": "approved" } } }, "then": { "required": ["approved_by", "approved_at", "approved_plan_fingerprint"] } }
+      ]
+    },
+    "plan_fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "approved" } } },
+      "then": { "properties": { "approval": { "properties": { "status": { "const": "approved" } } } } }
+    },
+    {
+      "if": { "properties": { "approval": { "properties": { "status": { "const": "approved" } } } } },
+      "then": { "properties": { "status": { "const": "approved" } } }
+    }
+  ]
+}

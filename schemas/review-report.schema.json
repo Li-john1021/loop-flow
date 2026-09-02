@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-flow/review-report/1.0",
+  "title": "Review Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "review_id", "review_kind", "reviewer", "review_executor", "reviewer_context_ref", "implementation_actor_refs", "candidate_ref", "candidate_fingerprint", "verdict", "evidence", "findings", "next_cycle_brief"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "review_id": { "type": "string" },
+    "review_kind": { "enum": ["code_review", "spec_review", "security", "domain_quality"] },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "review_executor": { "enum": ["independent_subagent", "manual_reviewer", "main_degraded"] },
+    "reviewer_context_ref": { "type": "string", "minLength": 1 },
+    "implementation_actor_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+    "candidate_ref": { "type": "string", "minLength": 1 },
+    "candidate_fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "verdict": { "enum": ["pass", "revise", "planning_review", "blocked"] },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "path_or_command", "summary"],
+        "properties": {
+          "id": { "type": "string" },
+          "path_or_command": { "type": "string" },
+          "summary": { "type": "string" },
+          "fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "statement", "severity", "route", "requirement_refs"],
+        "properties": {
+          "id": { "type": "string" },
+          "statement": { "type": "string" },
+          "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
+          "requirement_refs": { "type": "array", "items": { "type": "string", "pattern": "^REQ-[0-9]{3}$" } },
+          "root_cause_assumptions": { "type": "array", "items": { "type": "string" } },
+          "confidence": { "enum": ["high", "medium", "low"] },
+          "route": { "enum": ["repair", "planning_review", "blocked", "release_boundary"] },
+          "location": { "type": "string" }
+        }
+      }
+    },
+    "next_cycle_brief": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["objective", "allowed_changes", "checks", "prohibited"],
+      "properties": {
+        "objective": { "type": "string" },
+        "allowed_changes": { "type": "array", "items": { "type": "string" } },
+        "checks": { "type": "array", "items": { "type": "string" } },
+        "prohibited": { "type": "array", "items": { "type": "string" } },
+        "carry_forward": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

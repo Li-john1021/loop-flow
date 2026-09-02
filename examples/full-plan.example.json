@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "plan_id": "plan:bounded-feature",
+  "plan_version": 1,
+  "status": "ready_for_approval",
+  "goal": {
+    "statement": "为现有模块增加一个可测试的配置开关",
+    "success_definition": "开关按约定生效，已有测试和新增测试均通过",
+    "user_value": "用户可以安全启用或关闭该行为"
+  },
+  "scope": {
+    "in_scope": ["配置项", "模块实现", "单元测试"],
+    "out_of_scope": ["发布", "无关重构"]
+  },
+  "requirements": [
+    { "id": "REQ-001", "statement": "配置开关可被读取并影响目标行为", "priority": "must", "source_refs": ["goal.statement"] },
+    { "id": "REQ-002", "statement": "目标行为有可重复的自动测试", "priority": "must", "source_refs": ["goal.success_definition"] }
+  ],
+  "deliverables": [
+    { "id": "OUT-001", "kind": "code", "description": "配置开关实现", "path_or_destination": "src/" },
+    { "id": "OUT-002", "kind": "test", "description": "配置开关测试", "path_or_destination": "tests/" }
+  ],
+  "acceptance": [
+    { "id": "AC-001", "proves": ["REQ-001"], "method": "运行目标模块测试并观察开关两种状态", "evidence_kind": "test", "stop_condition": "两种状态均符合预期" },
+    { "id": "AC-002", "proves": ["REQ-002"], "method": "运行项目测试命令", "evidence_kind": "test", "stop_condition": "退出码为 0" }
+  ],
+  "execution_policy": {
+    "orchestration_mode": "main_dialogue_skill",
+    "git_mode": "optional",
+    "workspace_mode": "isolated_paths",
+    "interface_mode": "existing_contract",
+    "parallelism": "serial",
+    "model_policy": {
+      "planning_tier": "frontier",
+      "implementation_tier": "economy",
+      "review_tier": "balanced",
+      "rationale": "实现边界明确，Review 负责发现回归"
+    }
+  },
+  "quality_policy": {
+    "review_mode": "sequential_conditional",
+    "code_impact": "unknown",
+    "code_review_policy": "deferred",
+    "test_mode": "independent_subagent",
+    "build_mode": "when_applicable",
+    "trace_mode": "canonical_minimal",
+    "retrospective_mode": "user_opt_in",
+    "review_roles": ["code_review", "spec_review"]
+  },
+  "annotations": [],
+  "approval": { "status": "not_requested" }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-flow/test-report/1.0",
+  "title": "Test Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "test_id", "tester", "tester_context_ref", "implementation_actor_refs", "candidate_ref", "candidate_fingerprint", "mode", "verdict", "commands", "coverage", "evidence", "unresolved"],
+  "properties": {
+    "schema_version": { "const": "1.0" }, "test_id": { "type": "string" }, "tester": { "type": "string", "minLength": 1 }, "tester_context_ref": { "type": "string", "minLength": 1 }, "implementation_actor_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } }, "candidate_ref": { "type": "string", "minLength": 1 }, "candidate_fingerprint": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }, "mode": { "enum": ["independent_subagent", "manual", "not_available"] }, "verdict": { "enum": ["pass", "revise", "blocked", "not_available"] }, "commands": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["command", "exit_code"], "properties": { "command": { "type": "string" }, "workdir": { "type": "string" }, "exit_code": { "type": "integer" }, "passed": { "type": "integer" }, "failed": { "type": "integer" }, "output_ref": { "type": "string" } } } }, "coverage": { "type": "array", "items": { "type": "string" } }, "state_changes": { "type": "array", "items": { "type": "string" } }, "evidence": { "type": "array", "items": { "type": "string" } }, "unresolved": { "type": "array", "items": { "type": "string" } }, "next_action": { "type": "string" }
+  }
+}

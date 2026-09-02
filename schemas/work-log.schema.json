@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-flow/work-log/1.0",
+  "title": "Work Log",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "log_id", "plan_ref", "cycle_status", "summary", "units", "reviews", "tests", "decisions", "next_action"],
+  "properties": {
+    "schema_version": { "const": "1.0" }, "log_id": { "type": "string" }, "plan_ref": { "type": "string" }, "spec_ref": { "type": "string" }, "cycle_status": { "enum": ["done", "revise", "planning_review", "blocked", "not_available"] }, "summary": { "type": "string" }, "units": { "type": "array", "items": { "$ref": "#/$defs/trace_item" } }, "reviews": { "type": "array", "items": { "$ref": "#/$defs/trace_item" } }, "tests": { "type": "array", "items": { "$ref": "#/$defs/trace_item" } }, "decisions": { "type": "array", "items": { "$ref": "#/$defs/trace_item" } }, "usage_summary": { "type": "object", "additionalProperties": false, "properties": { "total_tokens": { "type": "number", "minimum": 0 }, "total_cost": { "type": "number", "minimum": 0 }, "main_context_tokens": { "type": "number", "minimum": 0 }, "delegated_tokens": { "type": "number", "minimum": 0 } } }, "next_action": { "type": "string" }, "user_approval_required": { "type": "boolean" }
+  },
+  "$defs": {
+    "trace_item": { "type": "object", "additionalProperties": false, "required": ["ref", "trace_event_refs", "summary"], "properties": { "ref": { "type": "string", "minLength": 1 }, "trace_event_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^EVT-[0-9]{3,}$" } }, "summary": { "type": "string", "minLength": 1 } } }
+  }
+}

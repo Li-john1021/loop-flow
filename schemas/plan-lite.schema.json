@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-flow/plan-lite/1.0",
+  "title": "Plan Lite",
+  "description": "单一有界任务的最小 Plan。通过触发器可无损晋升为完整 Plan/Cycle Spec。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "plan_id", "plan_version", "mode", "goal", "acceptance", "forbidden"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "plan_id": { "type": "string", "pattern": "^plan:[A-Za-z0-9._-]+$" },
+    "plan_version": { "type": "integer", "minimum": 1 },
+    "mode": { "const": "tier1" },
+    "goal": { "type": "string", "minLength": 1 },
+    "acceptance": { "type": "string", "minLength": 1 },
+    "forbidden": { "type": "array", "items": { "type": "string" } },
+    "owner": { "type": "string" },
+    "created_at": { "type": "string" },
+    "notes": { "type": "string" },
+    "approval_status": { "enum": ["not_requested", "requested", "approved", "rejected"] },
+    "review_mode": { "enum": ["single_async", "manual", "none"] },
+    "review_executor": { "enum": ["independent_subagent", "manual_reviewer", "main_degraded"] },
+    "test_mode": { "enum": ["independent_subagent", "manual", "not_available"] },
+    "rework_count": { "type": "integer", "minimum": 0 },
+    "annotations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "target", "comment", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^ANN-[0-9]{3}$" },
+          "target": { "type": "string", "minLength": 1 },
+          "comment": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["open", "accepted", "rejected", "resolved"] },
+          "resolved_by": { "type": "string" }
+        }
+      }
+    },
+    "upgrade_signals": { "type": "array", "items": { "enum": ["multiple_units", "shared_interface", "important_code", "rework_repeat", "context_loss", "irreversible_effect", "external_provider"] } }
+  }
+}

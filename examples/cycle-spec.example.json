@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "spec_id": "spec:bounded-feature:1",
+  "plan_ref": "plan:bounded-feature",
+  "plan_version": 1,
+  "plan_fingerprint": "sha256:6f5d6d9f7c54ddd57aa147a6d5a3b5b76628168c9f75f34b4f9de89a6ae35228",
+  "requirements": [
+    { "id": "REQ-001", "statement": "配置开关可被读取并影响目标行为", "source_refs": ["REQ-001"] },
+    { "id": "REQ-002", "statement": "目标行为有可重复的自动测试", "source_refs": ["REQ-002"] }
+  ],
+  "acceptance": [
+    { "id": "AC-001", "proves": ["REQ-001"], "check": "运行目标模块测试并观察两种状态", "evidence_kind": "test" },
+    { "id": "AC-002", "proves": ["REQ-002"], "check": "运行项目测试命令", "evidence_kind": "test" }
+  ],
+  "units": [
+    {
+      "id": "WU-001",
+      "objective": "实现配置开关",
+      "depends_on": [],
+      "requirement_refs": ["REQ-001"],
+      "acceptance_refs": ["AC-001"],
+      "checks": ["运行目标模块测试"],
+      "allowed_paths": ["src/"],
+      "forbidden_effects": ["修改无关模块", "发布"],
+      "stop_conditions": ["artifact_ready", "blocked"],
+      "model_tier": "economy",
+      "code_impact": "material",
+      "code_review_policy": "required",
+      "code_review_rationale": "会改变现有生产行为",
+      "review_sequence": "code_review_then_spec_review"
+    },
+    {
+      "id": "WU-002",
+      "objective": "补充配置开关测试",
+      "depends_on": ["WU-001"],
+      "requirement_refs": ["REQ-002"],
+      "acceptance_refs": ["AC-002"],
+      "checks": ["运行项目测试命令"],
+      "allowed_paths": ["tests/"],
+      "forbidden_effects": ["修改生产代码"],
+      "stop_conditions": ["artifact_ready", "blocked"],
+      "model_tier": "economy",
+      "code_impact": "limited",
+      "code_review_policy": "optional",
+      "code_review_rationale": "只增加局部测试夹具",
+      "review_sequence": "spec_review_only"
+    }
+  ],
+  "invariants": ["用户配置保持兼容"],
+  "forbidden_effects": ["发布", "推送远端"],
+  "validation_policy": {
+    "review_mode": "sequential_conditional",
+    "review_executor": "independent_subagent",
+    "test_mode": "independent_subagent",
+    "build_mode": "when_applicable",
+    "review_roles": ["code_review", "spec_review"]
+  },
+  "final_acceptance": {
+    "required_evidence": ["AC-001", "AC-002"],
+    "exit_states": ["done", "revise", "planning_review", "blocked", "not_available"],
+    "release_boundary": "只完成本地验证，不发布"
+  }
+}

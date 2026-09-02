@@ -1,0 +1,236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-flow/cycle-spec/1.0",
+  "title": "Cycle Spec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "spec_id",
+    "plan_ref",
+    "plan_version",
+    "plan_fingerprint",
+    "requirements",
+    "acceptance",
+    "units",
+    "invariants",
+    "forbidden_effects",
+    "validation_policy",
+    "final_acceptance"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "spec_id": {
+      "type": "string",
+      "pattern": "^spec:[A-Za-z0-9._-]+(?::[A-Za-z0-9._-]+)*$"
+    },
+    "plan_ref": {
+      "type": "string",
+      "pattern": "^plan:[A-Za-z0-9._-]+$"
+    },
+    "plan_version": { "type": "integer", "minimum": 1 },
+    "plan_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "requirements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "statement", "source_refs"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^REQ-[0-9]{3}$" },
+          "statement": { "type": "string", "minLength": 1 },
+          "source_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "acceptance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "proves", "check", "evidence_kind"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^AC-[0-9]{3}$" },
+          "proves": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^REQ-[0-9]{3}$" }
+          },
+          "check": { "type": "string", "minLength": 1 },
+          "evidence_kind": {
+            "enum": ["test", "artifact", "review", "manual_confirmation", "build", "trace"]
+          }
+        }
+      }
+    },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "objective",
+          "depends_on",
+          "requirement_refs",
+          "acceptance_refs",
+          "checks",
+          "stop_conditions",
+          "code_impact",
+          "code_review_policy",
+          "code_review_rationale",
+          "review_sequence"
+        ],
+        "properties": {
+          "id": { "type": "string", "pattern": "^WU-[0-9]{3}$" },
+          "objective": { "type": "string", "minLength": 1 },
+          "depends_on": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^WU-[0-9]{3}$" }
+          },
+          "requirement_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^REQ-[0-9]{3}$" }
+          },
+          "acceptance_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^AC-[0-9]{3}$" }
+          },
+          "checks": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          },
+          "allowed_paths": { "type": "array", "items": { "type": "string" } },
+          "forbidden_effects": { "type": "array", "items": { "type": "string" } },
+          "stop_conditions": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" }
+          },
+          "model_tier": {
+            "enum": ["frontier", "balanced", "economy", "user_selected"]
+          },
+          "code_impact": {
+            "enum": ["critical", "material", "limited", "none"]
+          },
+          "code_review_policy": {
+            "enum": ["required", "optional", "not_applicable"]
+          },
+          "code_review_rationale": { "type": "string", "minLength": 1 },
+          "review_sequence": {
+            "enum": ["code_review_then_spec_review", "spec_review_only"]
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": ["code_impact"],
+              "properties": {
+                "code_impact": { "enum": ["critical", "material"] }
+              }
+            },
+            "then": {
+              "properties": {
+                "code_review_policy": { "const": "required" },
+                "review_sequence": { "const": "code_review_then_spec_review" }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": ["code_impact"],
+              "properties": { "code_impact": { "const": "none" } }
+            },
+            "then": {
+              "properties": {
+                "code_review_policy": { "const": "not_applicable" },
+                "review_sequence": { "const": "spec_review_only" }
+              }
+            }
+          },
+          {
+            "if": {
+              "required": ["code_impact"],
+              "properties": { "code_impact": { "const": "limited" } }
+            },
+            "then": {
+              "properties": {
+                "code_review_policy": { "enum": ["required", "optional"] }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "invariants": { "type": "array", "items": { "type": "string" } },
+    "forbidden_effects": { "type": "array", "items": { "type": "string" } },
+    "validation_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["review_mode", "review_executor", "test_mode", "build_mode"],
+      "properties": {
+        "review_mode": {
+          "enum": ["sequential_conditional", "single_async", "manual", "none"]
+        },
+        "review_executor": {
+          "enum": ["independent_subagent", "manual_reviewer", "main_degraded"]
+        },
+        "test_mode": {
+          "enum": ["independent_subagent", "manual", "not_available"]
+        },
+        "build_mode": {
+          "enum": ["required", "when_applicable", "not_applicable"]
+        },
+        "review_roles": {
+          "type": "array",
+          "items": {
+            "enum": ["code_review", "spec_review", "security", "domain_quality"]
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "review_executor": { "const": "main_degraded" } }
+          },
+          "then": {
+            "properties": { "review_mode": { "enum": ["manual", "none"] } }
+          }
+        }
+      ]
+    },
+    "final_acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_evidence", "exit_states"],
+      "properties": {
+        "required_evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" }
+        },
+        "exit_states": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "enum": ["done", "revise", "planning_review", "blocked", "not_available"]
+          }
+        },
+        "release_boundary": { "type": "string" }
+      }
+    }
+  }
+}

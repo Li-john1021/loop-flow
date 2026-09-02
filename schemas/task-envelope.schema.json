@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loop-flow/task-envelope/1.0",
+  "title": "Task Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "envelope_id", "spec_ref", "unit_ref", "role_type", "model_tier", "context_refs", "acceptance_refs", "allowed_paths", "forbidden_effects", "stop_conditions", "output_contract"],
+  "properties": {
+    "schema_version": { "const": "1.0" }, "envelope_id": { "type": "string" }, "spec_ref": { "type": "string", "pattern": "^spec:[A-Za-z0-9._-]+(?::[A-Za-z0-9._-]+)*$" }, "unit_ref": { "type": "string", "pattern": "^WU-[0-9]{3}$" }, "role_type": { "enum": ["implementer", "specialist", "tester", "reviewer"] }, "model_tier": { "enum": ["frontier", "balanced", "economy", "user_selected"] }, "context_refs": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "acceptance_refs": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^AC-[0-9]{3}$" } }, "allowed_paths": { "type": "array", "items": { "type": "string" } }, "forbidden_effects": { "type": "array", "items": { "type": "string" } }, "budget": { "type": "object", "additionalProperties": false, "properties": { "max_tokens": { "type": "number", "exclusiveMinimum": 0 }, "max_cost": { "type": "number", "exclusiveMinimum": 0 }, "max_duration_seconds": { "type": "number", "exclusiveMinimum": 0 }, "max_attempts": { "type": "number", "exclusiveMinimum": 0 } } }, "stop_conditions": { "type": "array", "minItems": 1, "items": { "type": "string" } }, "output_contract": { "enum": ["unit_result", "review_report", "test_report"] }
+  }
+}

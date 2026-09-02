@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "plan_id": "plan:fix-readme-typo",
+  "plan_version": 1,
+  "mode": "tier1",
+  "goal": "修正 README 中的一个错误命令示例",
+  "acceptance": "运行文档中的命令解析检查，并确认示例文本与 CLI 帮助一致",
+  "forbidden": ["不要修改源码行为", "不要新增依赖", "不要发布或推送"],
+  "approval_status": "not_requested",
+  "upgrade_signals": []
+}
