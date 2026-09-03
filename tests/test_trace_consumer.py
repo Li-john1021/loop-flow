@@ -100,6 +100,16 @@ class TraceConsumerTests(unittest.TestCase):
             report = CONSUMER.consume_trace(trace_path, ROOT, require_jsonschema=True)
         self.assertEqual(report["candidates"][0]["confidence"], "high")
 
+    def test_more_prompt_failures_do_not_lower_confidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            events = [
+                event(event_id="EVT-001", root_cause_hint="prompt", selection_reason="边界提示不足。"),
+                event(event_id="EVT-002", root_cause_hint="prompt", selection_reason="同类任务再次失败。"),
+            ]
+            trace_path = self.write_trace(Path(directory), events)
+            report = CONSUMER.consume_trace(trace_path, ROOT, require_jsonschema=True)
+        self.assertEqual(report["candidates"][0]["confidence"], "medium")
+
     def test_missing_root_cause_is_not_inferred(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             trace_path = self.write_trace(Path(directory), [event()])

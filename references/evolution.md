@@ -22,9 +22,11 @@ Consumer 按 `root_cause_hint + plan_ref + spec_ref + unit_ref` 聚合，避免�
 只有同时满足以下条件，才允许提出 `capability_mismatch`：
 
 1. Work Unit 的目标、禁止效果和 Acceptance 已明确；
-2. 所需工具和上下文已可用，或有宿主/用户能力声明；
+2. Trace 中同时存在完整选型档案：`capability_requirements`、非 `unknown` 的 `capability_source`、`expected_model_tier`、`actual_model_id`（或 usage 中的 model ID）和 `selection_reason`；
 3. 实际 Artifact、退出码或测试结果证明失败；
 4. 没有更直接的 Prompt、分段、流程或环境原因。
+
+宿主不提供 `actual_model_id` 或选择理由时，只能输出 `insufficient_evidence`，不能生成 `model_upgrade`。这是一条有意的证据边界，不是对宿主或模型的质量评价。
 
 这类候选不评价模型好坏，只调整模型层级、专职角色或单元边界。
 

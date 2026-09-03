@@ -118,16 +118,17 @@ def capability_evidence_complete(events: list[dict[str, Any]]) -> bool:
 def confidence_for(events: list[dict[str, Any]], hint: str) -> str:
     if hint == "insufficient_evidence":
         return "low"
-    complete = bool(events) and all(
-        event.get("capability_source") not in {None, "unknown"}
-        and isinstance(event.get("selection_reason"), str)
-        and bool(event["selection_reason"].strip())
-        for event in events
-    )
     attempts = max((event.get("attempts", 1) for event in events), default=1)
-    if len(events) >= 2 and attempts >= 2 and complete:
+    corroborated = len(events) >= 2 and attempts >= 2
+    if hint == "capability_mismatch":
+        if not capability_evidence_complete(events):
+            return "low"
+        if corroborated:
+            return "high"
+        return "medium"
+    if corroborated:
         return "high"
-    return "medium" if complete or len(events) == 1 else "low"
+    return "medium"
 
 
 def candidate_for(events: list[dict[str, Any]], candidate_number: int, *, hint_override: str | None = None) -> dict[str, Any]:
