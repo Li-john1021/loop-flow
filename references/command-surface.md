@@ -1,6 +1,6 @@
 # 命令层契约
 
-本文件定义平台无关的命令语义。Claude Code、Codex、Gemini CLI 或其他宿主可以把它映射为斜杠命令、Skill 参数或自然语言；不得复制一套独立流程。
+本文件定义平台无关的命令语义。具体清单和薄提示词位于 `commands/manifest.json` 与 `commands/prompts/`。Claude Code、Codex、Gemini CLI 或其他宿主可以把它映射为斜杠命令、Skill 参数或自然语言；不得复制一套独立流程。
 
 ## 用户命令
 

@@ -15,3 +15,22 @@ Codex 只需要让主对话加载 `SKILL.md`，并能根据 Task Envelope 创建
 ## 不可替代项
 
 Codex 的子 Agent API 不能替代 Plan 批准、Schema 校验、Review 独立性、Test Agent 和用户最终决定。
+
+## 命令映射
+
+Codex 没有假定存在的通用斜杠命令注册表。可用 `$loop-flow` 加命令参数转发到同一份命令清单：
+
+```text
+$loop-flow plan
+$loop-flow annotate
+$loop-flow ready
+$loop-flow approve
+$loop-flow run all
+$loop-flow status
+$loop-flow validate
+$loop-flow resume
+$loop-flow retro
+$loop-flow cancel
+```
+
+若当前 Codex 宿主不支持参数化 Skill，则用自然语言表达相同命令；不得为命令缺失创建第二套状态机。

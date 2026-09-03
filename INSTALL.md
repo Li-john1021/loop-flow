@@ -51,6 +51,8 @@ git pull --ff-only
 
 也可以使用宿主支持的命令入口：`plan` 生成初稿，`annotate` 吸收批注，`ready` 检查门控，`approve` 记录用户批准，`run` 启动批准后的无感串联。
 
+命令的共用清单在 `commands/manifest.json`，宿主适配器只需转发命令 ID、参数和当前对话；不要复制其中的门控逻辑。
+
 有 Python 3.9+ 时，可额外运行：
 
 ```text

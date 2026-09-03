@@ -15,3 +15,22 @@ Hook 只能用于提醒、Trace、停止检查或生成报告。不能假设 Hoo
 - Review 报告必须记录 `review_executor`；无独立子 Agent 时使用 `manual_reviewer/main_degraded`，不得填写 `independent_subagent`。
 - Test Agent 不得是实施 Agent 的同一身份。
 - 原始 transcript、私有推理和无关历史不回灌主对话。
+
+## 命令映射
+
+Claude Code 将 Skill 名称作为命令入口；推荐直接使用：
+
+```text
+/loop-flow plan
+/loop-flow annotate
+/loop-flow ready
+/loop-flow approve
+/loop-flow run all
+/loop-flow status
+/loop-flow validate
+/loop-flow resume
+/loop-flow retro
+/loop-flow cancel
+```
+
+参数由同一个 `loop-flow` Skill 接收，再按 `commands/manifest.json` 转发到共用提示词。命令只是快捷入口；自然语言仍可无感触发同一流程。若宿主未发现新 Skill，按平台规则刷新或重启会话。

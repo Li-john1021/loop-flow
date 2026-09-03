@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "skill": "loop-flow",
+  "description": "平台无关的命令语义和门控清单；宿主只负责转发，不得复制流程。",
+  "default_mode": "natural_language_orchestration",
+  "commands": [
+    { "id": "plan", "level": "core", "prompt": "prompts/plan.md", "gate": "discussion_before_plan", "side_effect": "create_or_version_plan" },
+    { "id": "annotate", "level": "core", "prompt": "prompts/annotate.md", "gate": "no_approval_change", "side_effect": "create_plan_version" },
+    { "id": "ready", "level": "core", "prompt": "prompts/ready.md", "gate": "read_only", "side_effect": "none" },
+    { "id": "approve", "level": "core", "prompt": "prompts/approve.md", "gate": "explicit_user_confirmation", "side_effect": "record_approval" },
+    { "id": "run", "level": "core", "prompt": "prompts/run.md", "arguments": "[WU-id|--step|all]", "gate": "approved_plan_required", "side_effect": "orchestrate_workflow" },
+    { "id": "status", "level": "core", "prompt": "prompts/status.md", "gate": "read_only", "side_effect": "none" },
+    { "id": "validate", "level": "core", "prompt": "prompts/validate.md", "gate": "read_only", "side_effect": "none" },
+    { "id": "resume", "level": "recovery", "prompt": "prompts/resume.md", "gate": "recheck_boundaries", "side_effect": "continue_workflow" },
+    { "id": "retro", "level": "closing", "prompt": "prompts/retro.md", "gate": "cycle_finished", "side_effect": "propose_optimization" },
+    { "id": "cancel", "level": "lifecycle", "prompt": "prompts/cancel.md", "gate": "preserve_history", "side_effect": "cancel_cycle" }
+  ]
+}

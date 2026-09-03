@@ -185,6 +185,27 @@ def validate_work_log(path: Path) -> None:
                 require(TRACE_RE.fullmatch(event_id), f"invalid trace event ref: {event_id}")
 
 
+def validate_command_manifest(root: Path) -> list[str]:
+    manifest_path = root / "commands" / "manifest.json"
+    manifest = load_json(manifest_path)
+    require(isinstance(manifest, dict), "command manifest must be an object")
+    require(manifest.get("schema_version") == "1.0", "unsupported command manifest schema_version")
+    require(manifest.get("skill") == "loop-flow", "command manifest skill must be loop-flow")
+    commands = manifest.get("commands")
+    require(isinstance(commands, list) and commands, "command manifest commands must be a non-empty array")
+    ids: list[str] = []
+    for command in commands:
+        require(isinstance(command, dict), "command manifest entry must be an object")
+        command_id = command.get("id")
+        prompt_ref = command.get("prompt")
+        require(isinstance(command_id, str) and re.fullmatch(r"[a-z][a-z0-9-]*", command_id), f"invalid command id: {command_id}")
+        require(command_id not in ids, f"duplicate command id: {command_id}")
+        require(isinstance(prompt_ref, str) and prompt_ref.startswith("prompts/"), f"invalid prompt ref for {command_id}")
+        require((root / "commands" / prompt_ref).is_file(), f"missing command prompt: {prompt_ref}")
+        ids.append(command_id)
+    return ids
+
+
 def validate_bundle(root: Path, *, require_jsonschema: bool) -> dict[str, Any]:
     schemas_dir = root / "schemas"
     schemas = {
@@ -207,6 +228,7 @@ def validate_bundle(root: Path, *, require_jsonschema: bool) -> dict[str, Any]:
     annotation_contract = {key: value for key, value in annotation_schema.items() if key not in {"$schema", "$id", "title", "description"}}
     require(schemas["plan.schema.json"].get("$defs", {}).get("plan_annotation") == annotation_contract, "plan annotation contract drift between standalone and full Plan schemas")
     require(schemas["plan-lite.schema.json"].get("properties", {}).get("annotations", {}).get("items") == annotation_contract, "plan annotation contract drift between standalone and Tier 1 schemas")
+    command_ids = validate_command_manifest(root)
     examples_dir = root / "examples"
     example_map = {
         "tier1-plan.example.json": "plan-lite.schema.json",
@@ -221,7 +243,7 @@ def validate_bundle(root: Path, *, require_jsonschema: bool) -> dict[str, Any]:
     cycle = load_json(examples_dir / "cycle-spec.example.json")
     validate_plan_semantics(plan)
     validate_cycle_semantics(cycle, plan)
-    return {"schema_engine": schema_engine, "schemas": len(list(schemas_dir.glob("*.json"))), "examples": ["tier1-plan", "full-plan", "cycle-spec", "plan-annotation"]}
+    return {"schema_engine": schema_engine, "schemas": len(list(schemas_dir.glob("*.json"))), "examples": ["tier1-plan", "full-plan", "cycle-spec", "plan-annotation"], "commands": command_ids}
 
 
 def validate_external_schema(root: Path, record: Any, schema_name: str, *, required: bool) -> None:
