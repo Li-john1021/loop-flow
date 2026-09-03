@@ -49,6 +49,8 @@ git pull --ff-only
 2. 用自然语言请求：`用 loop-flow 为“修正一个文档命令”生成 Plan。`
 3. 确认主对话先生成 Plan，并把缺口写入 `annotations`，没有用户批准前不实施。
 
+也可以使用宿主支持的命令入口：`plan` 生成初稿，`annotate` 吸收批注，`ready` 检查门控，`approve` 记录用户批准，`run` 启动批准后的无感串联。
+
 有 Python 3.9+ 时，可额外运行：
 
 ```text

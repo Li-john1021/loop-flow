@@ -29,6 +29,7 @@
 - `references/review-and-test.md`：Tier 1/完整模式 Review 与测试顺序。
 - `references/trace-and-retro.md`：Trace、Work Log、回溯和 SkillOpt。
 - `references/storage-layout.md`：`.loop-flow/` 运行产物目录和命名约定。
+- `references/command-surface.md`：平台无关命令语义、门控和无感串联规则。
 - `adapters/`：Codex、Claude Code 和通用宿主接入说明。
 - `agents/openai.yaml`：Codex 的显示元数据。
 - `scripts/validate.py`：可选、离线、标准库优先的 Schema/语义自检入口，不是运行时硬依赖。
@@ -50,6 +51,17 @@
 ```
 
 如果 Codex 当前环境不提供 subagent，Skill 必须退化为串行，并在 Work Log 中记录能力缺失。
+
+## 可选命令入口
+
+命令只是快捷入口，不会替代主对话的讨论、Plan 批注和用户批准。常用语义为：
+
+```text
+plan -> annotate -> ready -> approve -> run
+status / validate / resume / retro / cancel
+```
+
+`run` 批准后自动串联适用的编译、分派、Review、构建、测试、对账和 Trace；用户不必逐阶段调用命令。
 
 ## Claude Code 接入
 

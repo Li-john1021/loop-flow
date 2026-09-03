@@ -96,6 +96,10 @@ forbidden:
 
 Code Review `revise/blocked` 时短路，不启动 Spec Review。没有独立上下文时必须记录 `manual_reviewer`、`main_degraded` 或 `not_available`。
 
+## 命令入口
+
+命令是可选控制面，不是必须逐阶段输入的工作流。完整命令语义见 [references/command-surface.md](references/command-surface.md)。主对话仍按“讨论 -> Plan 初稿 -> Plan 批注 -> 用户批准 -> `run` 无感串联”工作；命令不能绕过批注、批准或质量门。
+
 ## 阶段索引
 
 | 阶段 | 读取 |
@@ -106,6 +110,7 @@ Code Review `revise/blocked` 时短路，不启动 Spec Review。没有独立上
 | Code Review、Spec Review、构建和独立测试 | [references/review-and-test.md](references/review-and-test.md) |
 | Trace、Work Log、回溯和 SkillOpt | [references/trace-and-retro.md](references/trace-and-retro.md) |
 | 运行产物目录和命名 | [references/storage-layout.md](references/storage-layout.md) |
+| 共用命令语义和平台映射 | [references/command-surface.md](references/command-surface.md) |
 | 跨文件引用、依赖和指纹语义检查 | [references/semantic-checks.md](references/semantic-checks.md) |
 | 高风险完整治理原则 | [references/full-governance.md](references/full-governance.md) |
 | 用户确认的策略决定 | [references/decision-record.md](references/decision-record.md) |

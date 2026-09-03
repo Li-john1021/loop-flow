@@ -8,4 +8,5 @@
 - 增加 Codex、Claude Code 和通用宿主适配说明。
 - 增加可选离线 `validate.py`，支持指纹、引用闭合、依赖环和 Review 策略检查。
 - 增加跨平台 `INSTALL.md`，明确 Skill 安装、更新、smoke check 和 Python 可选依赖边界。
+- 固化平台无关命令契约，明确 `plan -> annotate -> ready -> approve -> run` 与批准后的无感串联。
 - 采用 MIT License，允许修改、商用、再分发和二次集成。
