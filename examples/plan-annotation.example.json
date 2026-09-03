@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "annotation_id": "ANN-001",
+  "plan_ref": "plan:bounded-feature",
+  "plan_version": 1,
+  "target": "/execution_policy/parallelism",
+  "question": "是否允许并行开发？",
+  "reason": "该决定会影响任务拆分、文件冲突和上下文隔离。",
+  "options": [
+    { "id": "A", "label": "串行", "value": "serial" },
+    { "id": "B", "label": "安全单元并行", "value": "parallel_safe_units" }
+  ],
+  "answer": null,
+  "other": null,
+  "status": "open",
+  "required": true,
+  "created_at": "2026-09-03T00:00:00Z"
+}

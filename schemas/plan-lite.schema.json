@@ -27,16 +27,49 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "target", "comment", "status"],
+        "required": ["schema_version", "annotation_id", "plan_ref", "plan_version", "target", "question", "options", "answer", "other", "status", "required"],
         "properties": {
-          "id": { "type": "string", "pattern": "^ANN-[0-9]{3}$" },
+          "schema_version": { "const": "1.0" },
+          "annotation_id": { "type": "string", "pattern": "^ANN-[0-9]{3,}$" },
+          "plan_ref": { "type": "string", "pattern": "^plan:[A-Za-z0-9._-]+$" },
+          "plan_version": { "type": "integer", "minimum": 1 },
           "target": { "type": "string", "minLength": 1 },
-          "comment": { "type": "string", "minLength": 1 },
-          "status": { "enum": ["open", "accepted", "rejected", "resolved"] },
-          "resolved_by": { "type": "string" }
-        }
+          "question": { "type": "string", "minLength": 1 },
+          "reason": { "type": "string" },
+          "options": { "type": "array", "minItems": 2, "items": { "type": "object", "additionalProperties": false, "required": ["id", "label", "value"], "properties": { "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9_-]*$" }, "label": { "type": "string", "minLength": 1 }, "value": {} } } },
+          "answer": { "type": ["string", "number", "boolean", "null"] },
+          "other": { "type": ["string", "null"] },
+          "status": { "enum": ["open", "answered", "accepted", "rejected", "resolved"] },
+          "required": { "type": "boolean" },
+          "created_at": { "type": "string" },
+          "answered_at": { "type": "string" },
+          "resolved_by": { "type": "string" },
+          "resolution_note": { "type": "string" }
+        },
+        "allOf": [{ "if": { "properties": { "status": { "const": "resolved" } } }, "then": { "required": ["resolved_by", "resolution_note"] } }]
       }
     },
     "upgrade_signals": { "type": "array", "items": { "enum": ["multiple_units", "shared_interface", "important_code", "rework_repeat", "context_loss", "irreversible_effect", "external_provider"] } }
-  }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "approval_status": { "const": "approved" } } },
+      "then": {
+        "not": {
+          "properties": {
+            "annotations": {
+              "contains": {
+                "type": "object",
+                "required": ["required", "status"],
+                "properties": {
+                  "required": { "const": true },
+                  "status": { "enum": ["open", "answered"] }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

@@ -204,6 +204,7 @@
       "allOf": [
         {
           "if": {
+            "required": ["review_executor"],
             "properties": { "review_executor": { "const": "main_degraded" } }
           },
           "then": {

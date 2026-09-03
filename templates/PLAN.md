@@ -5,7 +5,7 @@ Plan ID：`plan:<slug>`
 版本：`1`
 所有者：`<user>`
 
-canonical `plan_fingerprint` 请直接使用 SKILL.md 中的唯一计算命令；命令会移除 `approval` 与 `plan_fingerprint` 后再计算 SHA-256。批准文件中的 `approved_plan_fingerprint` 必须等于命令输出。
+canonical `plan_fingerprint` 请直接运行 `python scripts/validate.py --fingerprint-plan <plan.json>`；该命令会移除 `approval` 与 `plan_fingerprint` 后再计算 SHA-256。批准文件中的 `approved_plan_fingerprint` 必须等于命令输出。
 
 ## 目标
 
@@ -88,9 +88,13 @@ canonical `plan_fingerprint` 请直接使用 SKILL.md 中的唯一计算命令�
 
 ## 用户批注
 
-| ID | 作者 | 目标字段 | 批注 | 状态 |
-|---|---|---|---|---|
-| ANN-001 |  |  |  | open |
+批注必须使用 [Plan Annotation 模板](PLAN-ANNOTATION.md) 和 `schemas/plan-annotation.schema.json`。所有待决问题集中在这里；一条批注只表达一个问题。
+
+```yaml
+annotations: []
+```
+
+主 Agent 先列出全部必要问题并等待用户回答；不能把未回答问题隐藏到正文，也不能在必填批注仍为 `open/answered` 时请求实施批准。
 
 ## 批准
 

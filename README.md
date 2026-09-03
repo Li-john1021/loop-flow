@@ -3,10 +3,9 @@
 这是一个面向高级个人开发者的轻量主对话编排 Skill。它把长程 Agent 工作的核心方法固化为：
 
 ```text
-Plan -> Plan Schema -> 用户批注/整理 -> 用户批准
-     -> Cycle Spec -> 主对话动态编排
-     -> 简单任务：Tier 1 三字段卡 -> 最小验收 -> Spec Review
-     -> 复杂任务：完整 Plan/Cycle Spec -> 有界实施 Agent -> Code Review（重要代码时）-> Spec Review
+简单任务：Tier 1 三字段卡 -> Grill 批注 -> 用户确认 -> 最小验收 -> Spec Review
+复杂任务：Plan 初稿 -> Grill 批注 -> 用户确认 -> 实施批准
+          -> Cycle Spec -> 动态编排 -> Code Review（重要代码时）-> Spec Review
      -> 构建/编译（适用时）-> 独立 Test Agent
      -> Spec 对账 -> Trace / Work Log -> 可选回溯
 ```
@@ -18,9 +17,15 @@ Plan -> Plan Schema -> 用户批注/整理 -> 用户批准
 - `SKILL.md`：唯一 Skill 主入口。
 - `schemas/`：Tier 1 Plan、完整 Plan、Cycle Spec、Task、回传、Review、Test、Trace 和 Work Log 的机器可读合同。
 - `templates/`：主对话和子 Agent 使用的人类可读模板。
-- `examples/`：可直接校验的最小 Plan 实例。
+- `examples/`：可直接校验的 Tier 1、完整 Plan、Cycle Spec 和批注实例。
 - `references/`：只在任务晋升后加载的完整治理原则。
 - `references/decision-record.md`：用户确认的 Review 分级和 Tier 1 策略。
+- `references/plan-dialogue.md`：Grill 提问、批注整理和 Plan 批准循环。
+- `references/spec-compiler.md`：完整 Plan 到 Cycle Spec 的编译规则。
+- `references/orchestration.md`：环境嗅探、模型分层和动态分派。
+- `references/review-and-test.md`：Tier 1/完整模式 Review 与测试顺序。
+- `references/trace-and-retro.md`：Trace、Work Log、回溯和 SkillOpt。
+- `references/storage-layout.md`：`.loop-flow/` 运行产物目录和命名约定。
 - `adapters/`：Codex、Claude Code 和通用宿主接入说明。
 - `agents/openai.yaml`：Codex 的显示元数据。
 - `scripts/validate.py`：可选、离线、标准库优先的 Schema/语义自检入口，不是运行时硬依赖。
@@ -31,6 +36,9 @@ Plan -> Plan Schema -> 用户批注/整理 -> 用户批准
 
 ```text
 用 loop-flow 为这个目标生成 Plan：<目标>
+把所有实施前缺口用 Grill 问题列入 Plan 的 annotations 区
+读取我的批注，整理 Plan，并告诉我是否还存在阻断缺口
+缺口清零后，询问我是否批准实施
 审阅当前 Plan 的批注并整理为下一个版本
 批准后编译 Cycle Spec 并开始加工
 运行本轮按代码影响串行 Review
@@ -50,11 +58,17 @@ Plan -> Plan Schema -> 用户批注/整理 -> 用户批准
 python skills/loop-flow/scripts/validate.py --root skills/loop-flow
 ```
 
+计算批准指纹时使用唯一入口：
+
+```text
+python skills/loop-flow/scripts/validate.py --fingerprint-plan path/to/plan.json
+```
+
 该脚本不是 Skill 的硬依赖；缺少 `jsonschema` 时会明确输出结构化降级状态。
 
 ## 使用边界
 
-- Schema 为 `1.0` 合同；宿主可以使用标准 JSON Schema 校验器，也可以使用等价语义校验实现。
+- Schema 为 `1.0` 合同；批注使用 `schemas/plan-annotation.schema.json`，宿主可以使用标准 JSON Schema 校验器，也可以使用等价语义校验实现。
 - `schemas/` 和 `templates/` 是本 Skill 的资源，不是额外的子 Skill。
 - 不要把私有演进叙事、原始 prompt、完整 transcript 或雇主材料放进 Skill 运行上下文。
 - 不要把测试案例的 Human Proxy Session 当成生产用户必须操作的界面。

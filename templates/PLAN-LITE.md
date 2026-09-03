@@ -15,7 +15,7 @@ forbidden:
 
 默认行为：主 Agent 直接把这张卡同时作为本轮 Spec 和 Task Envelope，选择一个实施 Agent，加工后执行最小验收，再由一个独立于实施 Agent 的 Spec Reviewer 异步审查。若宿主没有独立审查能力，必须明确选择 `review_executor=main_degraded` 或 `review_mode=none`，并在结果中标记降级；未触发升级前，不要求完整 Requirements、Cycle Spec、Code Review、指纹或发布门。Tier 1 的 Spec Reviewer 必须是独立子 Agent；无法提供时只能走降级或 `not_available`，不能由实施 Agent 自审。
 
-可选状态字段：`review_mode=single_async`、`review_executor=independent_subagent`、`test_mode=manual`、`rework_count=0`、`annotations=[]`。它们不属于三字段冷启动必填项。
+可选状态字段：`review_mode=single_async`、`review_executor=independent_subagent`、`test_mode=manual`、`rework_count=0`、`annotations=[]`。如需提问，批注必须使用 [Plan Annotation 模板](PLAN-ANNOTATION.md)；这些字段不属于三字段冷启动必填项。
 
 ## 触发式升级
 

@@ -45,13 +45,53 @@ def require(condition: bool, message: str) -> None:
         raise ValidationFailure(message)
 
 
+def validate_annotations(plan: dict[str, Any]) -> None:
+    annotations = plan.get("annotations", [])
+    require(isinstance(annotations, list), "plan annotations must be an array")
+    plan_id = plan.get("plan_id")
+    plan_version = plan.get("plan_version")
+    closed_statuses = {"accepted", "rejected", "resolved"}
+    pending_statuses = {"open", "answered"}
+    for annotation in annotations:
+        require(isinstance(annotation, dict), "plan annotation must be an object")
+        require(annotation.get("plan_ref") == plan_id, f"annotation plan_ref mismatch: {annotation.get('annotation_id')}")
+        require(annotation.get("plan_version") == plan_version, f"annotation plan_version mismatch: {annotation.get('annotation_id')}")
+        options = annotation.get("options", [])
+        require(isinstance(options, list) and len(options) >= 2, f"annotation needs at least two options: {annotation.get('annotation_id')}")
+        require(all(isinstance(item, dict) for item in options), f"annotation options must be objects: {annotation.get('annotation_id')}")
+        option_ids = [item.get("id") for item in options]
+        require(len(option_ids) == len(set(option_ids)), f"annotation option ids must be unique: {annotation.get('annotation_id')}")
+        status = annotation.get("status")
+        answer = annotation.get("answer")
+        other = annotation.get("other")
+        has_answer = answer is not None
+        has_other = isinstance(other, str) and bool(other.strip())
+        if has_answer:
+            require(any(isinstance(item, dict) and item.get("value") == answer for item in options), f"annotation answer is not one of its options: {annotation.get('annotation_id')}")
+        if status == "answered" or status == "accepted" or status == "resolved":
+            require(has_answer != has_other, f"answered annotation needs exactly one answer or other: {annotation.get('annotation_id')}")
+        elif status == "rejected":
+            require(not has_answer and has_other, f"rejected annotation needs an explanation in other: {annotation.get('annotation_id')}")
+        elif status == "open":
+            require(not has_answer and not has_other, f"open annotation cannot contain an answer: {annotation.get('annotation_id')}")
+        else:
+            require(isinstance(status, str) and status in closed_statuses | pending_statuses, f"invalid annotation status: {annotation.get('annotation_id')}")
+    approval = plan.get("approval")
+    approval_status = approval.get("status") if isinstance(approval, dict) else None
+    approved = plan.get("status") == "approved" or plan.get("approval_status") == "approved" or approval_status == "approved"
+    if approved:
+        require(all(not item.get("required") or item.get("status") in closed_statuses for item in annotations), "approved plan has unresolved required annotations")
+
+
 def validate_plan_semantics(plan: dict[str, Any]) -> None:
     require(isinstance(plan, dict), "plan must be a JSON object")
+    validate_annotations(plan)
     if plan.get("mode") == "tier1":
         require(isinstance(plan.get("goal"), str) and bool(plan["goal"].strip()), "tier1 goal must be non-empty")
         require(isinstance(plan.get("acceptance"), str) and bool(plan["acceptance"].strip()), "tier1 acceptance must be non-empty")
         require(isinstance(plan.get("forbidden"), list), "tier1 forbidden must be an array")
-        require(plan.get("approval_status", "not_requested") in {"not_requested", "requested", "approved", "rejected"}, "invalid tier1 approval_status")
+        approval_status = plan.get("approval_status", "not_requested")
+        require(isinstance(approval_status, str) and approval_status in {"not_requested", "requested", "approved", "rejected"}, "invalid tier1 approval_status")
         return
     require(plan.get("plan_id", "").startswith("plan:"), "plan_id must start with plan:")
     approval = plan.get("approval", {})
@@ -163,11 +203,16 @@ def validate_bundle(root: Path, *, require_jsonschema: bool) -> dict[str, Any]:
         schema_validator = Draft202012Validator
         for schema_path in sorted(schemas_dir.glob("*.json")):
             Draft202012Validator.check_schema(load_json(schema_path))
+    annotation_schema = schemas["plan-annotation.schema.json"]
+    annotation_contract = {key: value for key, value in annotation_schema.items() if key not in {"$schema", "$id", "title", "description"}}
+    require(schemas["plan.schema.json"].get("$defs", {}).get("plan_annotation") == annotation_contract, "plan annotation contract drift between standalone and full Plan schemas")
+    require(schemas["plan-lite.schema.json"].get("properties", {}).get("annotations", {}).get("items") == annotation_contract, "plan annotation contract drift between standalone and Tier 1 schemas")
     examples_dir = root / "examples"
     example_map = {
         "tier1-plan.example.json": "plan-lite.schema.json",
         "full-plan.example.json": "plan.schema.json",
         "cycle-spec.example.json": "cycle-spec.schema.json",
+        "plan-annotation.example.json": "plan-annotation.schema.json",
     }
     if schema_validator is not None:
         for example_name, schema_name in example_map.items():
@@ -176,7 +221,7 @@ def validate_bundle(root: Path, *, require_jsonschema: bool) -> dict[str, Any]:
     cycle = load_json(examples_dir / "cycle-spec.example.json")
     validate_plan_semantics(plan)
     validate_cycle_semantics(cycle, plan)
-    return {"schema_engine": schema_engine, "schemas": len(list(schemas_dir.glob("*.json"))), "examples": ["tier1-plan", "full-plan", "cycle-spec"]}
+    return {"schema_engine": schema_engine, "schemas": len(list(schemas_dir.glob("*.json"))), "examples": ["tier1-plan", "full-plan", "cycle-spec", "plan-annotation"]}
 
 
 def validate_external_schema(root: Path, record: Any, schema_name: str, *, required: bool) -> None:
@@ -200,9 +245,15 @@ def main() -> int:
     parser.add_argument("--plan", type=Path, help="optional plan JSON to validate")
     parser.add_argument("--cycle-spec", type=Path, help="optional cycle spec JSON to validate")
     parser.add_argument("--work-log", type=Path, help="optional work log JSON to validate")
+    parser.add_argument("--fingerprint-plan", type=Path, help="print the canonical SHA-256 fingerprint for a Plan JSON")
     parser.add_argument("--require-jsonschema", action="store_true")
     args = parser.parse_args()
     try:
+        if args.fingerprint_plan:
+            plan = load_json(args.fingerprint_plan)
+            require(isinstance(plan, dict), "fingerprint plan must be a JSON object")
+            print(canonical_plan_fingerprint(plan))
+            return 0
         result = validate_bundle(args.root, require_jsonschema=args.require_jsonschema)
         external_plan = None
         if args.plan:
