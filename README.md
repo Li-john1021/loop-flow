@@ -2,6 +2,8 @@
 
 这是一个面向高级个人开发者的轻量主对话编排 Skill。它把长程 Agent 工作的核心方法固化为：
 
+安装和首次检查见 [INSTALL.md](INSTALL.md)。
+
 ```text
 简单任务：Tier 1 三字段卡 -> Grill 批注 -> 用户确认 -> 最小验收 -> Spec Review
 复杂任务：Plan 初稿 -> Grill 批注 -> 用户确认 -> 实施批准
@@ -15,6 +17,7 @@
 ## 目录
 
 - `SKILL.md`：唯一 Skill 主入口。
+- `INSTALL.md`：跨平台安装、更新和 smoke check。
 - `schemas/`：Tier 1 Plan、完整 Plan、Cycle Spec、Task、回传、Review、Test、Trace 和 Work Log 的机器可读合同。
 - `templates/`：主对话和子 Agent 使用的人类可读模板。
 - `examples/`：可直接校验的 Tier 1、完整 Plan、Cycle Spec 和批注实例。
