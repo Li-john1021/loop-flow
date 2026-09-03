@@ -89,20 +89,55 @@ def validate_event_shape(event: dict[str, Any]) -> None:
         raise ConsumerFailure("invalid event status")
     if not isinstance(event.get("refs"), list):
         raise ConsumerFailure("refs must be an array")
+    if "capability_requirements" in event and not isinstance(event["capability_requirements"], list):
+        raise ConsumerFailure("capability_requirements must be an array")
+    if "capability_source" in event and event["capability_source"] not in {"host_reported", "task_declared", "user_declared", "observed", "unknown"}:
+        raise ConsumerFailure("invalid capability_source")
+    if "attempts" in event and (not isinstance(event["attempts"], int) or event["attempts"] < 1):
+        raise ConsumerFailure("attempts must be a positive integer")
     if "root_cause_hint" in event and event["root_cause_hint"] not in ROOT_CAUSES:
         raise ConsumerFailure("invalid root_cause_hint")
 
 
-def candidate_for(events: list[dict[str, Any]], candidate_number: int) -> dict[str, Any]:
-    hint = events[0].get("root_cause_hint", "insufficient_evidence")
+def actual_model_id(events: list[dict[str, Any]]) -> str | None:
+    actual_model = next((event.get("actual_model_id") for event in events if event.get("actual_model_id")), None)
+    if actual_model:
+        return actual_model
+    return next((event.get("usage", {}).get("model_id") for event in events if isinstance(event.get("usage"), dict) and event["usage"].get("model_id")), None)
+
+
+def capability_evidence_complete(events: list[dict[str, Any]]) -> bool:
+    sources = {event.get("capability_source") for event in events}
+    requirements = [item for event in events for item in event.get("capability_requirements", []) if isinstance(item, str) and item.strip()]
+    expected = any(event.get("expected_model_tier") for event in events)
+    actual = actual_model_id(events)
+    selected = any(isinstance(event.get("selection_reason"), str) and event["selection_reason"].strip() for event in events)
+    return bool(requirements) and bool(sources & {"host_reported", "task_declared", "user_declared", "observed"}) and expected and bool(actual) and selected
+
+
+def confidence_for(events: list[dict[str, Any]], hint: str) -> str:
+    if hint == "insufficient_evidence":
+        return "low"
+    complete = bool(events) and all(
+        event.get("capability_source") not in {None, "unknown"}
+        and isinstance(event.get("selection_reason"), str)
+        and bool(event["selection_reason"].strip())
+        for event in events
+    )
+    attempts = max((event.get("attempts", 1) for event in events), default=1)
+    if len(events) >= 2 and attempts >= 2 and complete:
+        return "high"
+    return "medium" if complete or len(events) == 1 else "low"
+
+
+def candidate_for(events: list[dict[str, Any]], candidate_number: int, *, hint_override: str | None = None) -> dict[str, Any]:
+    hint = hint_override or events[0].get("root_cause_hint", "insufficient_evidence")
     unit_ref = next((event.get("unit_ref") for event in events if event.get("unit_ref")), None)
     expected_tier = next((event.get("expected_model_tier") for event in events if event.get("expected_model_tier")), None)
-    actual_model = next((event.get("actual_model_id") for event in events if event.get("actual_model_id")), None)
-    if not actual_model:
-        actual_model = next((event.get("usage", {}).get("model_id") for event in events if isinstance(event.get("usage"), dict) and event["usage"].get("model_id")), None)
+    actual_model = actual_model_id(events)
     capabilities = sorted({item for event in events for item in event.get("capability_requirements", []) if isinstance(item, str)})
     source_refs = [event["event_id"] for event in events]
-    observed_facts = [f"{event['event_id']}: {event.get('event_kind')}/{event.get('status')}" for event in events]
+    observed_facts = [f"{event['event_id']}: {event.get('plan_ref', '-')}/{event.get('spec_ref', '-')}/{event.get('unit_ref', '-')}: {event.get('event_kind')}/{event.get('status')}" for event in events]
     attempts = [event.get("attempts") for event in events if isinstance(event.get("attempts"), int)]
     if attempts:
         observed_facts.append(f"attempts_max={max(attempts)}")
@@ -129,7 +164,7 @@ def candidate_for(events: list[dict[str, Any]], candidate_number: int) -> dict[s
         "candidate_id": f"OPT-{candidate_number:03d}",
         "source_trace_refs": source_refs,
         "root_cause_class": hint,
-        "confidence": "medium" if hint != "insufficient_evidence" else "low",
+        "confidence": confidence_for(events, hint),
         "observed_facts": observed_facts,
         "hypothesis": f"{label} 的失败事件显式标记为 {hint}；该标记是待验证假设，不是因果证明。",
         "proposal_type": proposal_type,
@@ -174,16 +209,23 @@ def consume_trace(trace_path: Path, root: Path, *, require_jsonschema: bool = Fa
             unresolved.append(f"{path.name}:{event.get('event_id', '?')}: {exc}")
             continue
         valid_events.append(event)
-    groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    groups: dict[tuple[str, str, str, str], list[dict[str, Any]]] = defaultdict(list)
     for event in valid_events:
         if event.get("event_kind") not in TRIGGER_KINDS or event.get("status") not in FAILURE_STATUSES:
             continue
         hint = event.get("root_cause_hint")
-        if hint is None or hint == "insufficient_evidence":
+        grouping_hint = hint
+        if hint is None:
             unresolved.append(f"{event['event_id']}: no actionable root_cause_hint; no workflow change proposed")
             continue
-        groups[(hint, event.get("unit_ref") or "cycle")].append(event)
-    candidates = [candidate_for(groups[key], index) for index, key in enumerate(sorted(groups), 1)]
+        if hint == "insufficient_evidence":
+            unresolved.append(f"{event['event_id']}: insufficient evidence; no workflow change proposed")
+            continue
+        if hint == "capability_mismatch" and not capability_evidence_complete([event]):
+            unresolved.append(f"{event['event_id']}: capability_mismatch lacks complete capability selection facts; downgraded to insufficient_evidence")
+            grouping_hint = "insufficient_evidence"
+        groups[(grouping_hint, event.get("plan_ref") or "-", event.get("spec_ref") or "-", event.get("unit_ref") or "cycle")].append(event)
+    candidates = [candidate_for(groups[key], index, hint_override=key[0]) for index, key in enumerate(sorted(groups), 1)]
     return {
         "schema_version": "1.0",
         "report_id": f"trace-consumer-{trace_path.name}",

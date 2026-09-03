@@ -53,6 +53,7 @@ class TraceConsumerTests(unittest.TestCase):
                 root_cause_hint="capability_mismatch",
                 capability_requirements=["filesystem_write"],
                 capability_source="host_reported",
+                selection_reason="任务需要文件写入，当前实施风险低。",
                 expected_model_tier="economy",
                 actual_model_id="provider/model",
                 attempts=2,
@@ -63,6 +64,41 @@ class TraceConsumerTests(unittest.TestCase):
         self.assertEqual(candidate["expected_model_tier"], "economy")
         self.assertEqual(candidate["actual_model_id"], "provider/model")
         self.assertEqual(candidate["capability_requirements"], ["filesystem_write"])
+
+    def test_same_unit_in_different_cycles_is_not_merged(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            trace_path = self.write_trace(Path(directory), [
+                event(event_id="EVT-001", plan_ref="plan:example", spec_ref="spec:example:1", root_cause_hint="prompt", selection_reason="第一周期选择理由"),
+                event(event_id="EVT-002", plan_ref="plan:example", spec_ref="spec:example:2", root_cause_hint="prompt", selection_reason="第二周期选择理由"),
+            ])
+            report = CONSUMER.consume_trace(trace_path, ROOT, require_jsonschema=True)
+        self.assertEqual(report["candidate_count"], 2)
+        self.assertEqual({tuple(item["source_trace_refs"]) for item in report["candidates"]}, {("EVT-001",), ("EVT-002",)})
+
+    def test_incomplete_capability_mismatch_is_downgraded(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            trace_path = self.write_trace(Path(directory), [event(
+                root_cause_hint="capability_mismatch",
+                expected_model_tier="economy",
+                actual_model_id="provider/model",
+                selection_reason="选择低成本实施模型。",
+            )])
+            report = CONSUMER.consume_trace(trace_path, ROOT, require_jsonschema=True)
+        self.assertEqual(report["status"], "revise")
+        self.assertEqual(report["candidate_count"], 1)
+        self.assertEqual(report["candidates"][0]["root_cause_class"], "insufficient_evidence")
+        self.assertEqual(report["candidates"][0]["proposal_type"], "no_change")
+        self.assertTrue(any("downgraded to insufficient_evidence" in item for item in report["unresolved"]))
+
+    def test_repeated_complete_evidence_raises_confidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            events = [
+                event(event_id="EVT-001", root_cause_hint="capability_mismatch", capability_requirements=["filesystem_write"], capability_source="host_reported", selection_reason="低风险任务。", expected_model_tier="economy", actual_model_id="provider/model", attempts=1),
+                event(event_id="EVT-002", root_cause_hint="capability_mismatch", capability_requirements=["filesystem_write"], capability_source="host_reported", selection_reason="同一任务返工。", expected_model_tier="economy", actual_model_id="provider/model", attempts=2),
+            ]
+            trace_path = self.write_trace(Path(directory), events)
+            report = CONSUMER.consume_trace(trace_path, ROOT, require_jsonschema=True)
+        self.assertEqual(report["candidates"][0]["confidence"], "high")
 
     def test_missing_root_cause_is_not_inferred(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

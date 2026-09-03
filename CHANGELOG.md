@@ -6,6 +6,7 @@
 - 增加离线 Trace Consumer 和 `optimization-candidate` 合同，未知根因只产生证据缺口。
 - 增加能力不匹配、Prompt、分段、流程和环境问题的候选评估规则；不自动修改 Skill。
 - 将 `retro` 明确改为用户显式触发的高级模型异步 Consumer；周期结束只提醒，不自动消费 Trace。
+- 修复 Consumer 跨周期合并候选、能力不匹配证据门和固定置信度问题，并补充回归测试。
 
 ## 0.1.0-alpha.2 - 2026-09-03
 

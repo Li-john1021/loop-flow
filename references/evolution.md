@@ -15,6 +15,8 @@
 
 `root_cause_hint` 是待验证标签，不是自动证明。单次失败且没有明确提示时，Consumer 必须输出证据缺口，不能猜测根因。
 
+Consumer 按 `root_cause_hint + plan_ref + spec_ref + unit_ref` 聚合，避免不同周期中重复的 `WU-001` 被合并。候选的 `confidence` 表示证据完整度，不表示模型能力评分或因果概率。
+
 ## 能力不匹配门
 
 只有同时满足以下条件，才允许提出 `capability_mismatch`：

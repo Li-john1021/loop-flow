@@ -18,4 +18,6 @@ Work Log 是面向用户的摘要，不是第二套事实源。完整模式的�
 
 消费者不得从单次失败的自然语言 `reason` 推断因果。没有显式 `root_cause_hint` 或缺少实际 Evidence 时，报告 `insufficient_evidence`，不提出全局修改。`capability_mismatch` 只表示合同清楚、能力已声明或可观察、且实际结果仍失败的待验证假设，不是对模型的评价。
 
+Consumer 以 `plan_ref`、`spec_ref` 和 `unit_ref` 作为周期与单元边界；不得跨周期合并同名 Work Unit。能力事实不完整时只能生成 `insufficient_evidence`，不能生成 `model_upgrade`。
+
 发布新 Skill 版本时保留上一版本；出现质量回归、错误放行、成本异常或用户明确否决时，提出回滚并等待用户批准。回滚写入 `optimization_rolled_back` 事件，旧版本不得删除。
