@@ -30,9 +30,10 @@
 
 ```text
 Trace JSONL
+  -> 用户显式调用 retro
+  -> 独立高级 Consumer/Judge
   -> scripts/consume_trace.py
   -> optimization-candidate(status=proposed)
-  -> 独立 Consumer/Judge
   -> held-out + 对抗 + 回归 + 质量/成本检查
   -> 用户批准
   -> 新版本或 rejected/rolled_back

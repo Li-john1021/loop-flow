@@ -22,6 +22,10 @@ class ValidateTests(unittest.TestCase):
     def test_bundle_and_command_manifest(self) -> None:
         result = VALIDATOR.validate_bundle(ROOT, require_jsonschema=True)
         self.assertEqual(result["commands"], ["plan", "annotate", "ready", "approve", "spec", "run", "status", "validate", "resume", "retro", "cancel"])
+        manifest = json.loads((ROOT / "commands" / "manifest.json").read_text(encoding="utf-8"))
+        retro = next(item for item in manifest["commands"] if item["id"] == "retro")
+        self.assertEqual(retro["gate"], "explicit_user_invocation_after_cycle")
+        self.assertEqual(retro["consumer_model_tier"], "frontier")
 
     def test_fake_approved_fingerprint_is_rejected(self) -> None:
         plan = load_example("full-plan.example.json")

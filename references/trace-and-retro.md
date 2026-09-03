@@ -14,7 +14,7 @@ Work Log 是面向用户的摘要，不是第二套事实源。完整模式的�
 
 ## 回溯
 
-周期完成后先询问用户是否回溯。用户同意后，先由 `scripts/consume_trace.py` 读取脱敏 Trace，生成事实摘要和 `optimization-candidate`；再由独立 Consumer/Judge 评估根因。候选只能提出：上下文压缩、模型分层、任务拆分、Review 规则和提示词的候选改动。候选必须经过 held-out、对抗测试、质量/成本门禁和用户批准。
+周期完成后主对话只提醒用户是否回溯，不自动运行消费者。用户显式调用 `retro` 后，才派出独立、高等级 Consumer/Judge Session；该 Session 先用 `scripts/consume_trace.py` 读取脱敏 Trace，生成事实摘要和 `optimization-candidate`，再评估根因。`retro` 不属于 `run` 的自动编排阶段。候选只能提出：上下文压缩、模型分层、任务拆分、Review 规则和提示词的候选改动。候选必须经过 held-out、对抗测试、质量/成本门禁和用户批准。
 
 消费者不得从单次失败的自然语言 `reason` 推断因果。没有显式 `root_cause_hint` 或缺少实际 Evidence 时，报告 `insufficient_evidence`，不提出全局修改。`capability_mismatch` 只表示合同清楚、能力已声明或可观察、且实际结果仍失败的待验证假设，不是对模型的评价。
 

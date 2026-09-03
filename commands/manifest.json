@@ -13,7 +13,7 @@
     { "id": "status", "level": "core", "prompt": "prompts/status.md", "gate": "read_only", "side_effect": "none" },
     { "id": "validate", "level": "core", "prompt": "prompts/validate.md", "gate": "read_only", "side_effect": "none" },
     { "id": "resume", "level": "recovery", "prompt": "prompts/resume.md", "gate": "recheck_boundaries", "side_effect": "continue_workflow" },
-    { "id": "retro", "level": "closing", "prompt": "prompts/retro.md", "gate": "cycle_finished", "side_effect": "propose_optimization" },
+    { "id": "retro", "level": "closing", "prompt": "prompts/retro.md", "consumer_prompt": "prompts/retro-consumer.md", "consumer_model_tier": "frontier", "gate": "explicit_user_invocation_after_cycle", "side_effect": "dispatch_async_consumer" },
     { "id": "cancel", "level": "lifecycle", "prompt": "prompts/cancel.md", "gate": "preserve_history", "side_effect": "cancel_cycle" }
   ]
 }

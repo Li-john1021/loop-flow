@@ -78,7 +78,7 @@ python -B scripts/validate.py --root . --require-jsonschema
 python -B -m unittest discover -s tests -v
 ```
 
-完成周期后可由独立上下文消费 Trace：
+完成周期后不会自动消费 Trace。用户显式触发 `retro` 后，才由独立高级上下文消费 Trace：
 
 ```text
 python -B scripts/consume_trace.py --trace-dir <project>/.loop-flow/trace --root . --require-jsonschema --output <project>/.loop-flow/decisions/optimization-report.json

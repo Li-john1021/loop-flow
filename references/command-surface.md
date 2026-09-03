@@ -15,7 +15,7 @@
 | `status` | 核心 | 查看 Plan、周期、阻断和最近 Evidence 摘要 | 只读，不回显完整 Prompt/transcript |
 | `validate` | 核心 | 执行 Schema、引用、依赖、批注和指纹校验 | 只读；缺少校验器时诚实标记降级 |
 | `resume` | 恢复 | 从中断、checkpoint 或 `blocked` 状态继续 | 重新检查范围、批准和能力边界 |
-| `retro` | 收尾 | 请求回溯并提出优化候选 | 仅周期结束后可用，需用户决定是否采纳 |
+| `retro` | 收尾 | 用户显式触发独立高级 Consumer/Judge，分析 Trace 并提出优化候选 | 周期结束只提醒不自动执行；需用户显式调用和批准 |
 | `cancel` | 生命周期 | 取消当前 Plan 或周期 | 保留全部历史，不删除失败证据 |
 
 ## 关键语义

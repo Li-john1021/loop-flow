@@ -206,6 +206,12 @@ def validate_command_manifest(root: Path) -> list[str]:
         require(command_id not in ids, f"duplicate command id: {command_id}")
         require(isinstance(prompt_ref, str) and prompt_ref.startswith("prompts/"), f"invalid prompt ref for {command_id}")
         require((root / "commands" / prompt_ref).is_file(), f"missing command prompt: {prompt_ref}")
+        consumer_ref = command.get("consumer_prompt")
+        if consumer_ref is not None:
+            require(command_id == "retro", "consumer_prompt is only supported for retro")
+            require(isinstance(consumer_ref, str) and consumer_ref.startswith("prompts/"), f"invalid consumer prompt ref for {command_id}")
+            require((root / "commands" / consumer_ref).is_file(), f"missing consumer prompt: {consumer_ref}")
+            require(command.get("consumer_model_tier") in {"frontier", "balanced", "economy", "user_selected"}, f"invalid consumer model tier for {command_id}")
         ids.append(command_id)
     return ids
 
