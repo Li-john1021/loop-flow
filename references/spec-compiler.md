@@ -1,12 +1,13 @@
 # Spec 编译
 
-本文件只在 Tier 1 触发升级或用户明确要求完整治理时加载。
+本文件只在 Tier 1 触发升级、用户明确要求完整治理，或用户调用 `spec` 时加载。
 
 ## 输入与输出
 
 - 输入：已批准的完整 Plan、Plan 版本、批准指纹和已确认批注；
 - 输出：本轮冻结的 Cycle Spec，使用 `schemas/cycle-spec.schema.json`；
 - 状态：Spec 是本轮中间合同，不替代长期 Plan，也不记录运行状态。
+- 冻结：`spec` 成功后，Spec 才能作为 `run` 的执行输入；`run` 不得静默补编译。
 
 ## 编译规则
 
@@ -21,3 +22,5 @@ python scripts/validate.py --root <loop-flow-root> --plan <plan.json> --cycle-sp
 ```
 
 若 Plan/Spec 指纹、Requirement/Acceptance/Work Unit 引用、依赖图、覆盖范围或 Review 顺序不一致，返回 `planning_review` 或 `revise`，不得让实施 Agent 猜测。
+
+若目标 `.loop-flow/cycles/` 已存在同一 Plan 版本和指纹的冻结 Spec，`spec` 返回幂等成功并复用该合同；若 Plan 版本高于 Spec，或指纹不一致，必须生成新版本并保留旧 Spec，不能让 `run` 执行陈旧合同。

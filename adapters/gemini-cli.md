@@ -9,4 +9,4 @@ gemini skills link <loop-flow-root> --scope workspace
 /skills reload
 ```
 
-之后使用自然语言或宿主支持的 Skill 参数调用 `plan`、`annotate`、`ready`、`approve`、`run`、`status`、`validate`、`resume`、`retro`、`cancel`。若宿主提供斜杠参数，可映射为 `/loop-flow <command> [args]`；不提供时不能伪造原生命令，只需把命令语义转发给 `SKILL.md`。
+之后使用自然语言或宿主支持的 Skill 参数调用 `plan`、`annotate`、`ready`、`approve`、`spec`、`run`、`status`、`validate`、`resume`、`retro`、`cancel`。若宿主提供斜杠参数，可映射为 `/loop-flow <command> [args]`；不提供时不能伪造原生命令，只需把命令语义转发给 `SKILL.md`。

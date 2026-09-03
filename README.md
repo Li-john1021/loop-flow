@@ -59,13 +59,13 @@
 命令只是快捷入口，不会替代主对话的讨论、Plan 批注和用户批准。常用语义为：
 
 ```text
-plan -> annotate -> ready -> approve -> run
+plan -> annotate -> ready -> approve -> spec -> run
 status / validate / resume / retro / cancel
 ```
 
-命令清单和薄转发提示词见 `commands/manifest.json` 与 `commands/prompts/`。宿主可以把它们映射为原生命令；不支持命令的宿主继续使用自然语言，不影响无感串联。
+完整模式的命令顺序是 `plan -> annotate -> ready -> approve -> spec -> run`；Tier 1 在批准任务卡后可直接 `run`。命令清单和薄转发提示词见 `commands/manifest.json` 与 `commands/prompts/`。宿主可以把它们映射为原生命令；不支持命令的宿主继续使用自然语言，不影响无感串联。
 
-`run` 批准后自动串联适用的编译、分派、Review、构建、测试、对账和 Trace；用户不必逐阶段调用命令。
+`run` 在 Tier 1 已批准任务卡或完整模式已冻结 Spec 后自动串联适用的分派、Review、构建、测试、对账和 Trace；用户不必逐阶段调用内部命令。
 
 ## Claude Code 接入
 

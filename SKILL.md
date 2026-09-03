@@ -40,8 +40,8 @@ forbidden:
   -> 主 Agent 整理并继续提问
   -> 所有必需缺口敲定
   -> 用户批准实施
-  -> Tier 1 直接加工，或编译完整 Cycle Spec
-  -> 主 Agent 动态分派有界任务
+  -> 完整模式运行 `spec` 冻结 Cycle Spec；Tier 1 保持已批准任务卡
+  -> `run` 启动主 Agent 动态分派有界任务
   -> 按风险执行 Review
   -> 构建/编译和独立测试（适用时）
   -> 主 Agent 对账并写结果
@@ -98,7 +98,7 @@ Code Review `revise/blocked` 时短路，不启动 Spec Review。没有独立上
 
 ## 命令入口
 
-命令是可选控制面，不是必须逐阶段输入的工作流。收到命令参数时，先读取 [commands/manifest.json](commands/manifest.json) 和对应的 `commands/prompts/<id>.md`；完整语义见 [references/command-surface.md](references/command-surface.md)。主对话仍按“讨论 -> Plan 初稿 -> Plan 批注 -> 用户批准 -> `run` 无感串联”工作；命令不能绕过批注、批准或质量门。
+命令是可选控制面，不是必须逐阶段输入的工作流。收到命令参数时，先读取 [commands/manifest.json](commands/manifest.json) 和对应的 `commands/prompts/<id>.md`；完整语义见 [references/command-surface.md](references/command-surface.md)。主对话仍按“讨论 -> Plan 初稿 -> Plan 批注 -> 用户批准 -> 完整模式 `spec` -> `run` 无感串联”工作；命令不能绕过批注、批准或质量门。
 
 ## 阶段索引
 

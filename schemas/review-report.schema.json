@@ -40,7 +40,7 @@
           "id": { "type": "string" },
           "statement": { "type": "string" },
           "severity": { "enum": ["info", "low", "medium", "high", "critical"] },
-          "requirement_refs": { "type": "array", "items": { "type": "string", "pattern": "^REQ-[0-9]{3}$" } },
+          "requirement_refs": { "type": "array", "items": { "type": "string", "pattern": "^REQ-[0-9]{3,}$" } },
           "root_cause_assumptions": { "type": "array", "items": { "type": "string" } },
           "confidence": { "enum": ["high", "medium", "low"] },
           "route": { "enum": ["repair", "planning_review", "blocked", "release_boundary"] },

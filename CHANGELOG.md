@@ -10,4 +10,5 @@
 - 增加跨平台 `INSTALL.md`，明确 Skill 安装、更新、smoke check 和 Python 可选依赖边界。
 - 固化平台无关命令契约，明确 `plan -> annotate -> ready -> approve -> run` 与批准后的无感串联。
 - 增加 `commands/` 共用命令清单和薄转发提示词，并补充 Claude Code、Codex、Gemini CLI 映射说明。
+- 增加显式 `spec` 冻结入口，要求完整模式先签署 Plan、冻结 Cycle Spec，再由 `run` 执行；同步放宽下游 ID 编号校验。
 - 采用 MIT License，允许修改、商用、再分发和二次集成。

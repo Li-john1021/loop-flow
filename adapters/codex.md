@@ -25,6 +25,7 @@ $loop-flow plan
 $loop-flow annotate
 $loop-flow ready
 $loop-flow approve
+$loop-flow spec
 $loop-flow run all
 $loop-flow status
 $loop-flow validate

@@ -25,6 +25,7 @@ Claude Code 将 Skill 名称作为命令入口；推荐直接使用：
 /loop-flow annotate
 /loop-flow ready
 /loop-flow approve
+/loop-flow spec
 /loop-flow run all
 /loop-flow status
 /loop-flow validate

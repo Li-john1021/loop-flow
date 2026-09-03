@@ -6,7 +6,7 @@
 
 1. 读取命令 ID 和参数；
 2. 转发到对应的 `prompts/<id>.md`，并加载根目录 `SKILL.md`；
-3. 让主对话继续执行原有 Plan、批注、批准和 `run` 门控。
+3. 让主对话继续执行原有 Plan、批注、批准、`spec` 和 `run` 门控。
 
 宿主应将实际命令参数替换到提示词中的 `{{ARGS}}`；无参数时传入空字符串。不得把参数拼接为可执行 shell 命令。
 
@@ -19,6 +19,7 @@ plan [当前讨论上下文]
 annotate [用户批注或答案]
 ready
 approve
+spec
 run [WU-id|--step|all]
 status
 validate
@@ -27,4 +28,4 @@ retro
 cancel
 ```
 
-`run` 默认执行 `all`，并在批准后无感串联适用的 Spec 编译、分派、Review、构建、测试、对账和 Trace。`--step` 只用于已授权的调试或恢复步骤，不能跳过门控。
+完整模式必须先执行 `approve` 再执行 `spec` 冻结 Cycle Spec，之后 `run` 默认执行 `all`。Tier 1 不生成 Spec，批准任务卡后可直接 `run`。`--step` 只用于已授权的调试或恢复步骤，不能跳过门控。

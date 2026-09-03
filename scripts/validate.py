@@ -14,9 +14,9 @@ from typing import Any
 
 SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 TRACE_RE = re.compile(r"^EVT-[0-9]{3,}$")
-REQ_RE = re.compile(r"^REQ-[0-9]{3}$")
-AC_RE = re.compile(r"^AC-[0-9]{3}$")
-WU_RE = re.compile(r"^WU-[0-9]{3}$")
+REQ_RE = re.compile(r"^REQ-[0-9]{3,}$")
+AC_RE = re.compile(r"^AC-[0-9]{3,}$")
+WU_RE = re.compile(r"^WU-[0-9]{3,}$")
 
 
 class ValidationFailure(ValueError):
@@ -130,7 +130,11 @@ def validate_cycle_semantics(cycle: dict[str, Any], plan: dict[str, Any] | None 
     require(cycle.get("plan_ref", "").startswith("plan:"), "plan_ref must start with plan:")
     if plan is not None:
         require(cycle.get("plan_ref") == plan.get("plan_id"), "cycle plan_ref does not match plan_id")
-        require(cycle.get("plan_version") == plan.get("plan_version"), "cycle plan_version mismatch")
+        cycle_version = cycle.get("plan_version")
+        plan_version = plan.get("plan_version")
+        if isinstance(cycle_version, int) and isinstance(plan_version, int) and cycle_version < plan_version:
+            raise ValidationFailure("cycle spec is stale; run spec again for the current Plan version")
+        require(cycle_version == plan_version, "cycle plan_version mismatch")
         require(cycle.get("plan_fingerprint") == canonical_plan_fingerprint(plan), "cycle plan_fingerprint mismatch")
         plan_req_ids = {item.get("id") for item in plan.get("requirements", []) if isinstance(item, dict)}
         plan_ref_prefix = plan.get("plan_id", "") + "#"
