@@ -22,6 +22,7 @@
 - `templates/`：主对话和子 Agent 使用的人类可读模板。
 - `examples/`：可直接校验的 Tier 1、完整 Plan、Cycle Spec 和批注实例。
 - `commands/`：平台无关命令清单和薄转发提示词，不是第二套状态机。
+- `.github/workflows/ci.yml`：公开仓库的 Schema、语义、命令清单和单元测试门禁。
 - `references/`：只在任务晋升后加载的完整治理原则。
 - `references/decision-record.md`：用户确认的 Review 分级和 Tier 1 策略。
 - `references/plan-dialogue.md`：Grill 提问、批注整理和 Plan 批准循环。
@@ -67,6 +68,14 @@ status / validate / resume / retro / cancel
 
 `run` 在 Tier 1 已批准任务卡或完整模式已冻结 Spec 后自动串联适用的分派、Review、构建、测试、对账和 Trace；用户不必逐阶段调用内部命令。
 
+仓库自检也可直接运行：
+
+```text
+python -m pip install jsonschema
+python -B scripts/validate.py --root . --require-jsonschema
+python -B -m unittest discover -s tests -v
+```
+
 ## Claude Code 接入
 
 将整个目录放到项目级 `.claude/skills/` 或用户级 Claude Code skills 目录。Claude Code 可以通过 Skill 选择器或自然语言加载同一份 `SKILL.md`。不要依赖特定 Hook；Hook 只能加速 Trace 或停止检查，不能替代 Schema、独立 Review 或用户批准。
@@ -93,5 +102,5 @@ python skills/loop-flow/scripts/validate.py --fingerprint-plan path/to/plan.json
 - 不要把测试案例的 Human Proxy Session 当成生产用户必须操作的界面。
 - 外部 API、凭据、付费模型、发布和破坏性命令必须单独取得用户授权。
 
-版本：`0.1.0-alpha.1`
+版本：`0.1.0-alpha.2`
 语言：中文说明；命令、Schema 字段和宿主标识保留英文。
