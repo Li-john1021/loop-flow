@@ -112,5 +112,5 @@ python skills/loop-flow/scripts/validate.py --fingerprint-plan path/to/plan.json
 - 不要把测试案例的 Human Proxy Session 当成生产用户必须操作的界面。
 - 外部 API、凭据、付费模型、发布和破坏性命令必须单独取得用户授权。
 
-版本：`0.1.0-alpha.2`
+版本：`0.1.0-alpha.3`
 语言：中文说明；命令、Schema 字段和宿主标识保留英文。
