@@ -1,5 +1,11 @@
 # loop-flow 变更记录
 
+## Unreleased
+
+- 增强 Trace 字段以记录能力需求、模型选择事实和显式根因提示。
+- 增加离线 Trace Consumer 和 `optimization-candidate` 合同，未知根因只产生证据缺口。
+- 增加能力不匹配、Prompt、分段、流程和环境问题的候选评估规则；不自动修改 Skill。
+
 ## 0.1.0-alpha.2 - 2026-09-03
 
 - 将 `SKILL.md` 重构为渐进式索引，补充分阶段参考文档和固定 Plan 批注合同。
@@ -8,6 +14,7 @@
 - 增加 `.loop-flow/` 运行产物布局、批注门、指纹 CLI、命令清单校验和 stale Spec 检查。
 - 放宽下游 ID 编号校验，支持三位以上数字编号。
 - 增加公开 CI 和校验器单元测试，覆盖假指纹、批注门、依赖环、stale Spec 和高编号 ID。
+- 增加可选 Trace Consumer、能力选择记录和优化候选合同；`retro` 先消费事实，再进入独立评估和用户批准。
 
 ## 0.1.0-alpha.1 - 2026-09-03
 

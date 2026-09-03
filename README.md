@@ -18,7 +18,7 @@
 
 - `SKILL.md`：唯一 Skill 主入口。
 - `INSTALL.md`：跨平台安装、更新和 smoke check。
-- `schemas/`：Tier 1 Plan、完整 Plan、Cycle Spec、Task、回传、Review、Test、Trace 和 Work Log 的机器可读合同。
+- `schemas/`：Tier 1 Plan、完整 Plan、Cycle Spec、Task、回传、Review、Test、Trace、Work Log 和优化候选的机器可读合同。
 - `templates/`：主对话和子 Agent 使用的人类可读模板。
 - `examples/`：可直接校验的 Tier 1、完整 Plan、Cycle Spec 和批注实例。
 - `commands/`：平台无关命令清单和薄转发提示词，不是第二套状态机。
@@ -30,12 +30,14 @@
 - `references/orchestration.md`：环境嗅探、模型分层和动态分派。
 - `references/review-and-test.md`：Tier 1/完整模式 Review 与测试顺序。
 - `references/trace-and-retro.md`：Trace、Work Log、回溯和 SkillOpt。
+- `references/evolution.md`：根因分类、能力不匹配门和优化候选生命周期。
 - `references/storage-layout.md`：`.loop-flow/` 运行产物目录和命名约定。
 - `references/command-surface.md`：平台无关命令语义、门控和无感串联规则。
 - `adapters/`：Codex、Claude Code 和通用宿主接入说明。
 - `adapters/gemini-cli.md`：Gemini CLI 的 Skill 发现和命令映射说明。
 - `agents/openai.yaml`：Codex 的显示元数据。
 - `scripts/validate.py`：可选、离线、标准库优先的 Schema/语义自检入口，不是运行时硬依赖。
+- `scripts/consume_trace.py`：可选、离线 Trace Consumer，只生成优化候选，不自动修改 Skill。
 
 ## Codex 接入
 
@@ -75,6 +77,14 @@ python -m pip install jsonschema
 python -B scripts/validate.py --root . --require-jsonschema
 python -B -m unittest discover -s tests -v
 ```
+
+完成周期后可由独立上下文消费 Trace：
+
+```text
+python -B scripts/consume_trace.py --trace-dir <project>/.loop-flow/trace --root . --require-jsonschema --output <project>/.loop-flow/decisions/optimization-report.json
+```
+
+Consumer 只生成 `optimization-candidate`，不会自动修改提示词、Plan 或 Skill；候选必须经过独立评估和用户批准。
 
 ## Claude Code 接入
 

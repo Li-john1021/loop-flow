@@ -8,12 +8,14 @@
 ├── cycles/      # 完整模式编译出的 Cycle Spec
 ├── reviews/     # Code Review、Spec Review 报告
 ├── tests/       # 独立测试报告和测试 Evidence 索引
-├── trace/       # 追加式 Trace 事件
+├── trace/       # 追加式 Trace 事件（JSONL/NDJSON）
 ├── work-logs/   # 面向用户的周期摘要
 ├── decisions/   # 用户裁决和回溯决定
 └── checkpoints/ # 跨上下文恢复所需的最小检查点
 ```
 
 文件名使用 `<kind>-<slug>-v<version>.<ext>`；Trace 事件使用当前工作区或周期命名空间，避免跨周期重号。一次运行不得覆盖旧 Plan、报告、Trace 或检查点；修复应写入新版本并保留引用关系。
+
+Trace 文件按时间追加，每行一个 JSON 事件；消费者只读已落盘事件，不修改原文件。优化报告写入 `decisions/optimization-report.json`，候选单独引用 Trace event ID。
 
 `.loop-flow/` 默认在 `.gitignore` 中忽略。若用户需要提交可复核证据，应先脱敏并由用户明确选择要纳入版本控制的文件；不得把密钥、完整 Prompt、推理或私人 transcript 写入其中。

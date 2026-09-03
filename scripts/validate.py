@@ -239,6 +239,7 @@ def validate_bundle(root: Path, *, require_jsonschema: bool) -> dict[str, Any]:
         "full-plan.example.json": "plan.schema.json",
         "cycle-spec.example.json": "cycle-spec.schema.json",
         "plan-annotation.example.json": "plan-annotation.schema.json",
+        "optimization-candidate.example.json": "optimization-candidate.schema.json",
     }
     if schema_validator is not None:
         for example_name, schema_name in example_map.items():
@@ -247,7 +248,7 @@ def validate_bundle(root: Path, *, require_jsonschema: bool) -> dict[str, Any]:
     cycle = load_json(examples_dir / "cycle-spec.example.json")
     validate_plan_semantics(plan)
     validate_cycle_semantics(cycle, plan)
-    return {"schema_engine": schema_engine, "schemas": len(list(schemas_dir.glob("*.json"))), "examples": ["tier1-plan", "full-plan", "cycle-spec", "plan-annotation"], "commands": command_ids}
+    return {"schema_engine": schema_engine, "schemas": len(list(schemas_dir.glob("*.json"))), "examples": ["tier1-plan", "full-plan", "cycle-spec", "plan-annotation", "optimization-candidate"], "commands": command_ids}
 
 
 def validate_external_schema(root: Path, record: Any, schema_name: str, *, required: bool) -> None:

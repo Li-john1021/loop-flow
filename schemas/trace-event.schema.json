@@ -6,6 +6,38 @@
   "additionalProperties": false,
   "required": ["schema_version", "event_id", "event_kind", "at", "actor", "status", "refs"],
   "properties": {
-    "schema_version": { "const": "1.0" }, "event_id": { "type": "string", "pattern": "^EVT-[0-9]{3,}$" }, "event_kind": { "enum": ["plan_drafted", "plan_annotated", "plan_reconciled", "plan_approved", "spec_frozen", "unit_dispatched", "unit_completed", "unit_failed", "unit_blocked", "review_started", "review_completed", "repair_created", "build_completed", "build_not_applicable", "test_completed", "test_not_available", "cycle_reconciled", "user_decision", "retrospective_requested", "optimization_proposed", "optimization_rolled_back"] }, "at": { "type": "string" }, "actor": { "type": "string" }, "status": { "enum": ["observed", "requested", "succeeded", "failed", "blocked", "approved", "not_available"] }, "plan_ref": { "type": "string" }, "spec_ref": { "type": "string" }, "unit_ref": { "type": "string", "pattern": "^WU-[0-9]{3}$" }, "refs": { "type": "array", "items": { "type": "string" } }, "fingerprints": { "type": "array", "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" } }, "fingerprint_status": { "enum": ["computed", "unavailable", "not_required"] }, "usage": { "type": "object", "additionalProperties": false, "properties": { "model_id": { "type": "string" }, "model_tier": { "enum": ["frontier", "balanced", "economy", "user_selected", "unknown"] }, "input_tokens": { "type": "number", "minimum": 0 }, "output_tokens": { "type": "number", "minimum": 0 }, "tokens": { "type": "number", "minimum": 0 }, "cost": { "type": "number", "minimum": 0 }, "duration_seconds": { "type": "number", "minimum": 0 } } }, "reason": { "type": "string" }
+    "schema_version": { "const": "1.0" },
+    "event_id": { "type": "string", "pattern": "^EVT-[0-9]{3,}$" },
+    "event_kind": { "enum": ["plan_drafted", "plan_annotated", "plan_reconciled", "plan_approved", "spec_frozen", "unit_dispatched", "unit_completed", "unit_failed", "unit_blocked", "review_started", "review_completed", "repair_created", "build_completed", "build_not_applicable", "test_completed", "test_not_available", "cycle_reconciled", "user_decision", "retrospective_requested", "optimization_proposed", "optimization_rolled_back"] },
+    "at": { "type": "string" },
+    "actor": { "type": "string" },
+    "status": { "enum": ["observed", "requested", "succeeded", "failed", "blocked", "approved", "not_available"] },
+    "plan_ref": { "type": "string" },
+    "spec_ref": { "type": "string" },
+    "unit_ref": { "type": "string", "pattern": "^WU-[0-9]{3,}$" },
+    "refs": { "type": "array", "items": { "type": "string" } },
+    "fingerprints": { "type": "array", "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" } },
+    "fingerprint_status": { "enum": ["computed", "unavailable", "not_required"] },
+    "capability_requirements": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "capability_source": { "enum": ["host_reported", "task_declared", "user_declared", "observed", "unknown"] },
+    "selection_reason": { "type": "string", "minLength": 1 },
+    "expected_model_tier": { "enum": ["frontier", "balanced", "economy", "user_selected", "unknown"] },
+    "actual_model_id": { "type": "string", "minLength": 1 },
+    "attempts": { "type": "integer", "minimum": 1 },
+    "root_cause_hint": { "enum": ["prompt", "decomposition", "workflow", "capability_mismatch", "environment", "insufficient_evidence"] },
+    "usage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "model_id": { "type": "string" },
+        "model_tier": { "enum": ["frontier", "balanced", "economy", "user_selected", "unknown"] },
+        "input_tokens": { "type": "number", "minimum": 0 },
+        "output_tokens": { "type": "number", "minimum": 0 },
+        "tokens": { "type": "number", "minimum": 0 },
+        "cost": { "type": "number", "minimum": 0 },
+        "duration_seconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "reason": { "type": "string" }
   }
 }

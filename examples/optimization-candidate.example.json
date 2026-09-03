@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "candidate_id": "OPT-001",
+  "source_trace_refs": ["EVT-001"],
+  "root_cause_class": "prompt",
+  "confidence": "medium",
+  "observed_facts": ["EVT-001: unit_failed/failed"],
+  "hypothesis": "任务合同缺少一条可观察的边界约束，待独立评估。",
+  "proposal_type": "prompt_change",
+  "proposal": {
+    "summary": "增加与失败直接对应的边界约束。",
+    "changes": ["补充允许路径和停止条件。"],
+    "scope": "unit"
+  },
+  "evaluation_plan": {
+    "held_out": ["在未使用本次失败样本的同类任务上重跑。"],
+    "adversarial": ["构造越界输入，确认门控仍拒绝。"],
+    "regression": ["重跑当前周期回归测试。"],
+    "success_criteria": ["失败现象消失或被诚实阻断。"]
+  },
+  "expected_model_tier": "economy",
+  "capability_requirements": ["filesystem_write"],
+  "risk": "medium",
+  "status": "proposed",
+  "user_approval_required": true
+}

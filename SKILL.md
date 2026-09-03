@@ -109,6 +109,8 @@ Code Review `revise/blocked` 时短路，不启动 Spec Review。没有独立上
 | Git/接口/并行/模型/上下文和子 Agent 分派 | [references/orchestration.md](references/orchestration.md) |
 | Code Review、Spec Review、构建和独立测试 | [references/review-and-test.md](references/review-and-test.md) |
 | Trace、Work Log、回溯和 SkillOpt | [references/trace-and-retro.md](references/trace-and-retro.md) |
+| Trace Consumer 和优化候选 | [scripts/consume_trace.py](scripts/consume_trace.py)、[schemas/optimization-candidate.schema.json](schemas/optimization-candidate.schema.json) |
+| 根因分类、能力不匹配和候选生命周期 | [references/evolution.md](references/evolution.md) |
 | 运行产物目录和命名 | [references/storage-layout.md](references/storage-layout.md) |
 | 共用命令语义和平台映射 | [references/command-surface.md](references/command-surface.md) |
 | 命令清单和转发提示词 | [commands/README.md](commands/README.md) |

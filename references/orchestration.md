@@ -25,6 +25,8 @@ acceptance_refs: <对应验收>
 stop_conditions: <停止条件>
 ```
 
+需要分析模型匹配时，在 Task Envelope 和 `unit_dispatched` Trace 中记录 `capability_requirements`、`capability_source`、`selection_reason` 和 `expected_model_tier`；完成或失败事件在宿主可提供时补 `actual_model_id`、`attempts` 和 `usage`。这些字段记录选择事实，不代表已经证明模型能力。
+
 主 Agent 保留全局目标和决策；实施 Agent 只消费单元上下文，回传 Artifact、Evidence、Status 和 Usage（可用时）。
 
 ## 并行规则
